@@ -370,7 +370,7 @@ h3 {
 }
 
 .joyText text {
-  font-size:13.8px;
+  font-size:9px;
   font-weight:900;
   letter-spacing:1.3px;
   fill:#111;
@@ -538,7 +538,7 @@ input[type=range]::-webkit-slider-thumb {
 
     <div class="joyText">
       <svg viewBox="0 0 210 58">
-        <path id="uTextPath" d="M 18 10 Q 105 58 192 10" fill="none"/>
+        <path id="uTextPath" d="M 20 0 Q 105 65 199 0" fill="none"/>
         <text>
           <textPath href="#uTextPath" startOffset="50%" text-anchor="middle">
             360° SMOOTH DRIVE
