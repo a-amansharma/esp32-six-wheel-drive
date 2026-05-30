@@ -20,30 +20,38 @@ images/
 ```
 
 ---
-### Connection Map
+# Connection Map
 
-ESP32                  LEFT DRIVER
+### ESP32                  LEFT DRIVER
 --------------------------------------
 VIN / 3V3  --------->  VCC
+
 GND        --------->  GND
 
 D32        --------->  L_EN
+
 D33        --------->  R_EN
 
 D18        --------->  L_PWM
+
 D19        --------->  R_PWM
 
 _______________________________________
-ESP32                  RIGHT DRIVER
+### ESP32                  RIGHT DRIVER
 --------------------------------------
 VIN / 3V3  --------->  VCC
+
 GND        --------->  GND
 
 D26        --------->  L_EN
+
 D25        --------->  R_EN
 
 D14        --------->  L_PWM
+
 D27        --------->  R_PWM
+
+
 
 # 🎯 Project Objectives
 
