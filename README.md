@@ -2,9 +2,9 @@
 
 My first ESP32 project.
 
-ESP32-6WD is a six-wheel drive (6WD) car built using an ESP32 development board. The project was created to learn robotics, motor control, wireless communication, and embedded systems programming.
+ESP32-6WD is a six-wheel-drive (6WD) robotic car built using an ESP32 development board. This project was created to learn robotics, motor control, wireless communication, and embedded systems programming.
 
-The goal of this project is to experiment with different control methods and continuously improve the vehicle by adding new features and control systems.
+The main goal of this project is to control a single ESP32-based six-wheel-drive vehicle using multiple control methods. Each version explores a different approach, ranging from basic Wi-Fi control to internet-based remote operation.
 
 ---
 
@@ -55,60 +55,36 @@ D27        --->  R_PWM
 
 ---
 
-# 🎯 Project Objectives
+# 🎯 Project Objective
 
-This project was built to explore different ways of controlling a 6WD car using ESP32.
+The primary goal of ESP32-6WD is to develop and test multiple control systems for a single six-wheel-drive robotic vehicle using ESP32.
 
-Current and future objectives include:
+Instead of building different robots, this project focuses on implementing different control methods for the same vehicle and comparing their performance, usability, and driving experience.
 
-* Wi-Fi control
-* Smooth motor control
-* Hold-and-release steering
-* Joystick control
-* Phone gyroscope control
-* Bluetooth control
-* Home Wi-Fi router control
-* Internet-based control
+The project is organized into separate versions, where each version represents a different way of controlling the same 6WD car.
 
 ---
 
-# ✨ Features
+# ✨ Control Methods
 
-## Current Features
+ESP32-6WD is a single six-wheel-drive robot car that is being developed with multiple control methods.
 
-✅ ESP32 based 6WD car
+## Control Methods Included in This Project
 
-✅ Phone Wi-Fi control
-
-✅ Basic directional control
-
-✅ Smooth acceleration and deceleration
-
-✅ Hold-and-release steering
-
-✅ Virtual joystick control
-
-✅ Adjustable speed control
-
-## Future Features
-
-🔄 Phone gyroscope control
-
-🔄 Bluetooth control
-
-🔄 Home Wi-Fi router connectivity
-
-🔄 Internet control from anywhere
-
-🔄 Voice control
-
-🔄 Camera integration
+1. Basic Wi-Fi Control
+2. Smooth Wi-Fi Control
+3. Button Hold & Release Control
+4. Virtual Joystick Control
+5. Phone Gyroscope Control
+6. Bluetooth Control
+7. Home Router Wi-Fi Control
+8. Internet Control
 
 ---
 
 # 🗂 Development Versions
 
-This project has evolved through multiple versions as new features were added.
+This project is organized into multiple versions, where each version implements a different method of controlling the ESP32-6WD vehicle.
 
 ## Version 01 – Basic Wi-Fi Control
 
@@ -120,11 +96,11 @@ codes/01-basic-wifi-control/
 
 **Features**
 
-* Forward button
-* Backward button
-* Left button
-* Right button
-* Stop button
+- Forward button
+- Backward button
+- Left button
+- Right button
+- Stop button
 
 This was the first working version of the ESP32-6WD car.
 
@@ -140,9 +116,9 @@ codes/02-smooth-wifi-control/
 
 **Features**
 
-* Smooth acceleration
-* Smooth deceleration
-* Improved driving experience
+- Smooth acceleration
+- Smooth deceleration
+- Improved driving experience
 
 This version reduced sudden starts and stops.
 
@@ -158,17 +134,17 @@ codes/03-button-hold-release/
 
 **Features**
 
-* UP button remains active after pressing
-* DOWN button remains active after pressing
-* LEFT button works only while holding
-* RIGHT button works only while holding
-* STOP button immediately stops the vehicle
+- UP button remains active after pressing
+- DOWN button remains active after pressing
+- LEFT button works only while holding
+- RIGHT button works only while holding
+- STOP button immediately stops the vehicle
 
 This version introduced more natural steering behavior.
 
 ---
 
-## Version 04 – Joystick Control
+## Version 04 – Virtual Joystick Control
 
 **Folder**
 
@@ -178,17 +154,17 @@ codes/04-joystick-control/
 
 **Features**
 
-* Virtual joystick interface
-* Full directional control
-* Adjustable speed slider
-* Button controls retained
-* Smooth motor ramping
+- Virtual joystick interface
+- Full directional control
+- Adjustable speed slider
+- Button controls retained
+- Smooth motor ramping
 
 This is currently the most advanced working version.
 
 ---
 
-## Version 05 – Gyroscope Control (Planned)
+## Version 05 – Phone Gyroscope Control
 
 **Folder**
 
@@ -196,18 +172,18 @@ This is currently the most advanced working version.
 codes/05-gyroscope-control-future/
 ```
 
-**Planned Features**
+**Features**
 
-* Tilt phone forward → move forward
-* Tilt phone backward → move backward
-* Tilt phone left → turn left
-* Tilt phone right → turn right
+- Tilt phone forward to move forward
+- Tilt phone backward to move backward
+- Tilt phone left to turn left
+- Tilt phone right to turn right
 
 **Status:** Planned
 
 ---
 
-## Version 06 – Bluetooth Control (Planned)
+## Version 06 – Bluetooth Control
 
 **Folder**
 
@@ -215,17 +191,17 @@ codes/05-gyroscope-control-future/
 codes/06-bluetooth-control-future/
 ```
 
-**Planned Features**
+**Features**
 
-* ESP32 Bluetooth communication
-* Direct phone-to-car connection
-* Wireless control without Wi-Fi
+- ESP32 Bluetooth communication
+- Direct phone-to-car connection
+- Wireless control without Wi-Fi
 
 **Status:** Planned
 
 ---
 
-## Version 07 – Home Router Wi-Fi Control (Planned)
+## Version 07 – Home Router Wi-Fi Control
 
 **Folder**
 
@@ -233,17 +209,17 @@ codes/06-bluetooth-control-future/
 codes/07-home-router-wifi-future/
 ```
 
-**Planned Features**
+**Features**
 
-* Connect ESP32-6WD to home Wi-Fi
-* Access the control interface through the local network
-* Extended operating range
+- Connect ESP32-6WD to home Wi-Fi
+- Access the control interface through the local network
+- Extended operating range
 
 **Status:** Planned
 
 ---
 
-## Version 08 – Internet Control (Planned)
+## Version 08 – Internet Control
 
 **Folder**
 
@@ -251,11 +227,11 @@ codes/07-home-router-wifi-future/
 codes/08-internet-control-future/
 ```
 
-**Planned Features**
+**Features**
 
-* Control the car from anywhere
-* Cloud connectivity
-* Remote access over the internet
+- Control the car from anywhere
+- Cloud connectivity
+- Remote access over the internet
 
 **Status:** Planned
 
@@ -263,13 +239,13 @@ codes/08-internet-control-future/
 
 # 🔧 Hardware Used
 
-* ESP32 Development Board
-* Six DC Motors
-* Motor Driver Module
-* Battery Pack
-* 6WD Chassis
-* Jumper Wires
-* Smartphone for Control
+- ESP32 Development Board
+- Six DC Motors
+- Dual Motor Driver Modules
+- Battery Pack
+- 6WD Chassis
+- Jumper Wires
+- Smartphone for Control
 
 ---
 
@@ -300,18 +276,6 @@ ESP32-6WD/
 
 ---
 
-# 🚀 Future Roadmap
-
-* Gyroscope driving
-* Bluetooth control
-* Router-based control
-* Internet control
-* Voice control
-* Camera streaming
-* Autonomous navigation
-
----
-
 # 👨‍💻 Author
 
 **Aman Sharma**
@@ -322,4 +286,4 @@ First ESP32 Project – ESP32-6WD
 
 # ⭐ Support
 
-If you found this project interesting, feel free to star the repository and follow future updates.
+If you found this project interesting, consider giving the repository a star and following future updates.
