@@ -380,6 +380,7 @@ input[type=range]::-webkit-slider-thumb {
 <body>
 <div class="main">
   <h1>ESP32-6WD</h1>
+  <h3>Basic-Simple-Controls</h3>
 
   <div class="controls">
     <button class="btn forward" ontouchstart="cmd('F')" ontouchend="cmd('S')" onmousedown="cmd('F')" onmouseup="cmd('S')">
