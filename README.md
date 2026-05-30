@@ -20,38 +20,40 @@ images/
 ```
 
 ---
-# Connection Map
 
-### ESP32                  LEFT DRIVER
---------------------------------------
-VIN / 3V3  --------->  VCC
+# 🔌 Connection Map
 
-GND        --------->  GND
+## Left Motor Driver
 
-D32        --------->  L_EN
+```txt
+ESP32            LEFT DRIVER
+--------------------------------
+VIN / 3V3  --->  VCC
+GND        --->  GND
 
-D33        --------->  R_EN
+D32        --->  L_EN
+D33        --->  R_EN
 
-D18        --------->  L_PWM
+D18        --->  L_PWM
+D19        --->  R_PWM
+```
 
-D19        --------->  R_PWM
+## Right Motor Driver
 
-_______________________________________
-### ESP32                  RIGHT DRIVER
---------------------------------------
-VIN / 3V3  --------->  VCC
+```txt
+ESP32            RIGHT DRIVER
+--------------------------------
+VIN / 3V3  --->  VCC
+GND        --->  GND
 
-GND        --------->  GND
+D26        --->  L_EN
+D25        --->  R_EN
 
-D26        --------->  L_EN
+D14        --->  L_PWM
+D27        --->  R_PWM
+```
 
-D25        --------->  R_EN
-
-D14        --------->  L_PWM
-
-D27        --------->  R_PWM
-
-
+---
 
 # 🎯 Project Objectives
 
@@ -72,7 +74,7 @@ Current and future objectives include:
 
 # ✨ Features
 
-### Current Features
+## Current Features
 
 ✅ ESP32 based 6WD car
 
@@ -88,9 +90,7 @@ Current and future objectives include:
 
 ✅ Adjustable speed control
 
----
-
-### Future Features
+## Future Features
 
 🔄 Phone gyroscope control
 
@@ -110,17 +110,15 @@ Current and future objectives include:
 
 This project has evolved through multiple versions as new features were added.
 
----
-
 ## Version 01 – Basic Wi-Fi Control
 
-Folder:
+**Folder**
 
 ```txt
 codes/01-basic-wifi-control/
 ```
 
-Features:
+**Features**
 
 * Forward button
 * Backward button
@@ -134,13 +132,13 @@ This was the first working version of the ESP32-6WD car.
 
 ## Version 02 – Smooth Wi-Fi Control
 
-Folder:
+**Folder**
 
 ```txt
 codes/02-smooth-wifi-control/
 ```
 
-Features:
+**Features**
 
 * Smooth acceleration
 * Smooth deceleration
@@ -152,13 +150,13 @@ This version reduced sudden starts and stops.
 
 ## Version 03 – Button Hold & Release Control
 
-Folder:
+**Folder**
 
 ```txt
 codes/03-button-hold-release/
 ```
 
-Features:
+**Features**
 
 * UP button remains active after pressing
 * DOWN button remains active after pressing
@@ -172,13 +170,13 @@ This version introduced more natural steering behavior.
 
 ## Version 04 – Joystick Control
 
-Folder:
+**Folder**
 
 ```txt
 codes/04-joystick-control/
 ```
 
-Features:
+**Features**
 
 * Virtual joystick interface
 * Full directional control
@@ -192,74 +190,74 @@ This is currently the most advanced working version.
 
 ## Version 05 – Gyroscope Control (Planned)
 
-Folder:
+**Folder**
 
 ```txt
 codes/05-gyroscope-control-future/
 ```
 
-Planned Features:
+**Planned Features**
 
 * Tilt phone forward → move forward
 * Tilt phone backward → move backward
 * Tilt phone left → turn left
 * Tilt phone right → turn right
 
-Status: Planned.
+**Status:** Planned
 
 ---
 
 ## Version 06 – Bluetooth Control (Planned)
 
-Folder:
+**Folder**
 
 ```txt
 codes/06-bluetooth-control-future/
 ```
 
-Planned Features:
+**Planned Features**
 
 * ESP32 Bluetooth communication
 * Direct phone-to-car connection
 * Wireless control without Wi-Fi
 
-Status: Planned.
+**Status:** Planned
 
 ---
 
 ## Version 07 – Home Router Wi-Fi Control (Planned)
 
-Folder:
+**Folder**
 
 ```txt
 codes/07-home-router-wifi-future/
 ```
 
-Planned Features:
+**Planned Features**
 
 * Connect ESP32-6WD to home Wi-Fi
 * Access the control interface through the local network
 * Extended operating range
 
-Status: Planned.
+**Status:** Planned
 
 ---
 
 ## Version 08 – Internet Control (Planned)
 
-Folder:
+**Folder**
 
 ```txt
 codes/08-internet-control-future/
 ```
 
-Planned Features:
+**Planned Features**
 
 * Control the car from anywhere
 * Cloud connectivity
 * Remote access over the internet
 
-Status: Planned.
+**Status:** Planned
 
 ---
 
