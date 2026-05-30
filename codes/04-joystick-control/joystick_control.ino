@@ -20,6 +20,7 @@ WebServer server(80);
 #define BLUE_LED 2
 
 int speedValue = 150;
+int trimValue = 0;
 
 bool invertLeft = false;
 bool invertRight = false;
@@ -111,9 +112,11 @@ void setJoystickMovement(int x, int y) {
   if (abs(x) < deadZone) x = 0;
   if (abs(y) < deadZone) y = 0;
 
-  // Important fix:
-  // Forward corners remain same.
-  // Reverse corners are swapped so down-left and down-right work correctly.
+  if (y != 0) {
+    x = x + trimValue;
+    x = constrain(x, -100, 100);
+  }
+
   int steerX = x;
   if (y < 0) steerX = -x;
 
@@ -204,8 +207,49 @@ h3 {
   letter-spacing:0.7px;
 }
 
+.trimBox {
+  margin-top:18px;
+  width:185px;
+  height:32px;
+  padding:6px 12px;
+  border-radius:22px;
+  background:linear-gradient(145deg,#ffffff,#eeeeee);
+  box-shadow:
+    5px 5px 12px rgba(0,0,0,0.18),
+    -5px -5px 12px rgba(255,255,255,0.95),
+    inset 2px 2px 5px rgba(255,255,255,0.85),
+    inset -2px -2px 5px rgba(0,0,0,0.08);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+#trimSlider {
+  width:155px;
+  height:6px;
+  appearance:none;
+  border-radius:20px;
+  background:linear-gradient(90deg,#dddddd 0%, #dddddd 50%, #111 50%, #111 50%, #dddddd 50%, #dddddd 100%);
+  box-shadow:
+    inset 2px 2px 5px rgba(0,0,0,0.20),
+    inset -2px -2px 5px rgba(255,255,255,0.95);
+}
+
+#trimSlider::-webkit-slider-thumb {
+  appearance:none;
+  width:23px;
+  height:23px;
+  border-radius:50%;
+  background:
+    radial-gradient(circle at 30% 25%,#ffffff,#d9d9d9 35%,#444 78%,#111);
+  box-shadow:
+    0 5px 9px rgba(0,0,0,0.35),
+    inset 3px 3px 6px rgba(255,255,255,0.55),
+    inset -3px -3px 6px rgba(0,0,0,0.35);
+}
+
 .joyWrap {
-  margin-top:32px;
+  margin-top:25px;
   width:315px;
   height:315px;
   border-radius:50%;
@@ -326,7 +370,7 @@ h3 {
 }
 
 .joyText text {
-  font-size:9px;
+  font-size:13.8px;
   font-weight:900;
   letter-spacing:1.3px;
   fill:#111;
@@ -440,11 +484,19 @@ input[type=range]::-webkit-slider-thumb {
     margin:0;
   }
 
+  .trimBox {
+    grid-column:1;
+    grid-row:3;
+    align-self:start;
+    margin-top:0;
+    transform:translateY(-8px);
+  }
+
   .joyWrap {
     grid-column:1;
     grid-row:3;
-    margin-top:0;
-    transform:scale(0.82);
+    margin-top:36px;
+    transform:scale(0.78);
   }
 
   .speedBox {
@@ -475,6 +527,10 @@ input[type=range]::-webkit-slider-thumb {
   <h1>ESP32-6WD</h1>
   <h3>Joystick Control</h3>
 
+  <div class="trimBox">
+    <input id="trimSlider" type="range" min="-25" max="25" value="0" oninput="setTrim(this.value)">
+  </div>
+
   <div id="joyWrap" class="joyWrap">
     <div id="joyBase" class="joyBase">
       <div id="knob" class="knob"></div>
@@ -482,7 +538,7 @@ input[type=range]::-webkit-slider-thumb {
 
     <div class="joyText">
       <svg viewBox="0 0 210 58">
-        <path id="uTextPath" d="M 20 0 Q 105 65 188 0" fill="none"/>
+        <path id="uTextPath" d="M 18 10 Q 105 58 192 10" fill="none"/>
         <text>
           <textPath href="#uTextPath" startOffset="50%" text-anchor="middle">
             360° SMOOTH DRIVE
@@ -579,6 +635,21 @@ function getSpeedColor(percent) {
   return "hsl(" + hue + ", 100%, 45%)";
 }
 
+function setTrim(v) {
+  let val = Number(v);
+  let percent = ((val + 25) / 50) * 100;
+
+  if (val >= 0) {
+    document.getElementById('trimSlider').style.background =
+      "linear-gradient(90deg, #dddddd 0%, #dddddd 50%, #111 50%, #111 " + percent + "%, #dddddd " + percent + "%, #dddddd 100%)";
+  } else {
+    document.getElementById('trimSlider').style.background =
+      "linear-gradient(90deg, #dddddd 0%, #dddddd " + percent + "%, #111 " + percent + "%, #111 50%, #dddddd 50%, #dddddd 100%)";
+  }
+
+  fetch('/trim?value=' + val).catch(()=>{});
+}
+
 function setSpeed(v) {
   let percent = Math.round((v / 255) * 100);
   let color = getSpeedColor(percent);
@@ -591,6 +662,7 @@ function setSpeed(v) {
   fetch('/speed?value=' + v).catch(()=>{});
 }
 
+setTrim(0);
 setSpeed(150);
 </script>
 
@@ -623,6 +695,15 @@ void handleSpeed() {
   server.send(200, "text/plain", "OK");
 }
 
+void handleTrim() {
+  if (server.hasArg("value")) {
+    trimValue = server.arg("value").toInt();
+    trimValue = constrain(trimValue, -25, 25);
+  }
+
+  server.send(200, "text/plain", "OK");
+}
+
 void setup() {
   Serial.begin(115200);
 
@@ -643,6 +724,7 @@ void setup() {
   server.on("/", handleRoot);
   server.on("/joy", handleJoy);
   server.on("/speed", handleSpeed);
+  server.on("/trim", handleTrim);
 
   server.begin();
 }
