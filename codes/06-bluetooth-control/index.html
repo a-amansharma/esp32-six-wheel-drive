@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>ESP32 6WD BLE Controller</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", Arial, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(125, 211, 252, 0.58), transparent 35%),
+        radial-gradient(circle at bottom right, rgba(186, 230, 253, 0.72), transparent 35%),
+        linear-gradient(160deg, #f8fbff, #def5ff 56%, #ffffff);
+      color: #0f172a;
+    }
+
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      overflow-y: auto;
+      padding: 10px 0;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 420px;
+      padding: 10px 14px 14px;
+      text-align: center;
+    }
+
+    .glass {
+      background: rgba(255, 255, 255, 0.58);
+      border: 1px solid rgba(255, 255, 255, 0.82);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      box-shadow:
+        0 16px 38px rgba(14, 165, 233, 0.16),
+        inset 0 2px 5px rgba(255,255,255,0.9);
+    }
+
+    .header {
+      position: relative;
+      border-radius: 26px;
+      padding: 16px 14px 15px;
+      margin-bottom: 10px;
+    }
+
+    .btIcon {
+      position: absolute;
+      top: 13px;
+      right: 15px;
+      width: 50px;
+      height: 50px;
+      border-radius: 17px;
+      background: linear-gradient(145deg, #38bdf8, #2563eb);
+      display: grid;
+      place-items: center;
+      box-shadow:
+        0 11px 25px rgba(37,99,235,0.38),
+        inset 0 3px 5px rgba(255,255,255,0.48),
+        inset 0 -5px 9px rgba(30,64,175,0.35);
+    }
+
+    .btIcon svg {
+      width: 33px;
+      height: 33px;
+      fill: white;
+    }
+
+    h1 {
+      margin: 3px 0 3px;
+      font-size: 30px;
+      letter-spacing: 0.4px;
+      font-weight: 900;
+    }
+
+    .sub {
+      font-size: 13px;
+      color: #475569;
+      font-weight: 700;
+    }
+
+    .connect {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 20px;
+      background: linear-gradient(145deg, #7dd3fc, #0ea5e9);
+      color: white;
+      font-size: 16px;
+      font-weight: 900;
+      box-shadow:
+        0 12px 24px rgba(14,165,233,0.30),
+        inset 0 3px 5px rgba(255,255,255,0.45),
+        inset 0 -5px 9px rgba(3,105,161,0.25);
+      margin: 9px 0 10px;
+      transition: 0.2s ease;
+    }
+
+    .connect.connected {
+      background: linear-gradient(145deg, #4ade80, #16a34a);
+      box-shadow:
+        0 12px 24px rgba(22,163,74,0.30),
+        inset 0 3px 5px rgba(255,255,255,0.45),
+        inset 0 -5px 9px rgba(21,128,61,0.28);
+    }
+
+    .connect:active {
+      transform: scale(0.97);
+    }
+
+    .terminal {
+      text-align: left;
+      height: 124px;
+      overflow-y: auto;
+      border-radius: 17px;
+      padding: 12px 13px;
+      margin-bottom: 13px;
+      background: #050914;
+      border: 1px solid rgba(14, 165, 233, 0.25);
+      box-shadow:
+        inset 0 0 18px rgba(14,165,233,0.10),
+        0 10px 24px rgba(15,23,42,0.17);
+      font-family: "SF Mono", "Menlo", "Monaco", "Courier New", monospace;
+      font-size: 11.8px;
+      color: #67e8f9;
+      line-height: 1.52;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    #terminalText {
+      white-space: pre-line;
+      padding-bottom: 14px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 13px;
+    }
+
+    .btn {
+      height: 78px;
+      border: none;
+      border-radius: 24px;
+      color: white;
+      font-size: 28px;
+      font-weight: 900;
+      background:
+        linear-gradient(160deg, rgba(255,255,255,0.35), transparent 32%),
+        linear-gradient(145deg, #38bdf8, #2563eb);
+      box-shadow:
+        0 14px 26px rgba(37,99,235,0.30),
+        inset 0 4px 6px rgba(255,255,255,0.42),
+        inset 0 -7px 12px rgba(30,64,175,0.42);
+      text-shadow: 0 2px 5px rgba(0,0,0,0.25);
+      transition: 0.08s ease;
+    }
+
+    .btn:active {
+      transform: translateY(4px) scale(0.96);
+      box-shadow:
+        0 6px 12px rgba(37,99,235,0.26),
+        inset 0 3px 8px rgba(30,64,175,0.50);
+      background:
+        linear-gradient(160deg, rgba(255,255,255,0.22), transparent 30%),
+        linear-gradient(145deg, #0ea5e9, #1d4ed8);
+    }
+
+    .stop {
+      background:
+        linear-gradient(160deg, rgba(255,255,255,0.34), transparent 32%),
+        linear-gradient(145deg, #fb7185, #e11d48);
+      color: white;
+      font-size: 18px;
+      box-shadow:
+        0 14px 26px rgba(225,29,72,0.28),
+        inset 0 4px 6px rgba(255,255,255,0.35),
+        inset 0 -7px 12px rgba(127,29,29,0.28);
+    }
+
+    .stop:active {
+      background:
+        linear-gradient(160deg, rgba(255,255,255,0.22), transparent 30%),
+        linear-gradient(145deg, #f43f5e, #be123c);
+      box-shadow:
+        0 6px 12px rgba(225,29,72,0.23),
+        inset 0 3px 8px rgba(127,29,29,0.42);
+    }
+
+    .speedBox {
+      border-radius: 23px;
+      padding: 14px 15px;
+    }
+
+    .speedTitle {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 900;
+      margin-bottom: 9px;
+      color: #0f172a;
+      font-size: 16px;
+    }
+
+    .speedValue {
+      font-size: 22px;
+      color: #0284c7;
+      font-family: "SF Mono", "Menlo", monospace;
+      font-weight: 900;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: #0ea5e9;
+    }
+
+    @media (max-height: 700px) {
+      body { padding: 7px 0; }
+      .app { padding: 7px 14px 10px; }
+      .header { padding: 13px 14px; margin-bottom: 8px; }
+      h1 { font-size: 28px; }
+      .sub { font-size: 12px; }
+      .btIcon { width: 45px; height: 45px; }
+      .btIcon svg { width: 29px; height: 29px; }
+      .connect { padding: 12px; margin: 7px 0 8px; }
+      .terminal { height: 108px; font-size: 11px; margin-bottom: 10px; }
+      .grid { gap: 10px; margin-bottom: 10px; }
+      .btn { height: 70px; }
+      .speedBox { padding: 12px 14px; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app">
+    <div class="header glass">
+      <div class="btIcon">
+        <svg viewBox="0 0 24 24">
+          <path d="M12 2.2L18.3 8.5L14.1 12L18.3 15.5L12 21.8V14.7L8.1 18.6L6.7 17.2L11.9 12L6.7 6.8L8.1 5.4L12 9.3V2.2ZM14 6.9V9.7L15.7 8.3L14 6.9ZM14 14.3V17.1L15.7 15.7L14 14.3Z"/>
+        </svg>
+      </div>
+      <h1>ESP32 6WD</h1>
+      <div class="sub">Bluefy BLE Controller</div>
+    </div>
+
+    <button class="connect" id="connectBtn" onclick="connectBLE()">Connect Bluetooth</button>
+
+    <div class="terminal" id="terminalBox">
+      <div id="terminalText">aman@esp32-6wd:~$ BLE controller ready
+> waiting for Bluetooth connection...</div>
+    </div>
+
+    <div class="grid">
+      <div></div>
+      <button class="btn"
+        ontouchstart="moveCmd('B','FORWARD')"
+        onmousedown="moveCmd('B','FORWARD')"
+        ontouchend="stopCmd()"
+        onmouseup="stopCmd()">▲</button>
+      <div></div>
+
+      <button class="btn"
+        ontouchstart="moveCmd('R','LEFT')"
+        onmousedown="moveCmd('R','LEFT')"
+        ontouchend="stopCmd()"
+        onmouseup="stopCmd()">◀</button>
+
+      <button class="btn stop" onclick="stopCmd()">STOP</button>
+
+      <button class="btn"
+        ontouchstart="moveCmd('L','RIGHT')"
+        onmousedown="moveCmd('L','RIGHT')"
+        ontouchend="stopCmd()"
+        onmouseup="stopCmd()">▶</button>
+
+      <div></div>
+      <button class="btn"
+        ontouchstart="moveCmd('F','BACKWARD')"
+        onmousedown="moveCmd('F','BACKWARD')"
+        ontouchend="stopCmd()"
+        onmouseup="stopCmd()">▼</button>
+      <div></div>
+    </div>
+
+    <div class="speedBox glass">
+      <div class="speedTitle">
+        <span>Speed</span>
+        <span class="speedValue" id="speedValue">255</span>
+      </div>
+      <input type="range" min="0" max="255" value="255" id="speedSlider" oninput="updateSpeed(this.value)" />
+    </div>
+  </div>
+
+  <script>
+    let device;
+    let server;
+    let service;
+    let rxCharacteristic;
+
+    const SERVICE_UUID = "6e400001-b5a3-f393-e0a9-e50e24dcca9e";
+    const RX_UUID = "6e400002-b5a3-f393-e0a9-e50e24dcca9e";
+
+    const terminal = document.getElementById("terminalText");
+    const terminalBox = document.getElementById("terminalBox");
+    const connectBtn = document.getElementById("connectBtn");
+
+    function logLine(text) {
+      const time = new Date().toLocaleTimeString();
+      terminal.innerText += `\n[${time}] ${text}`;
+      terminalBox.scrollTop = terminalBox.scrollHeight;
+    }
+
+    function setConnectedUI(name) {
+      connectBtn.classList.add("connected");
+      connectBtn.innerText = "Connected: " + (name || "ESP32 6WD");
+    }
+
+    function setDisconnectedUI() {
+      connectBtn.classList.remove("connected");
+      connectBtn.innerText = "Connect Bluetooth";
+    }
+
+    async function connectBLE() {
+      try {
+        logLine("scanning BLE devices...");
+
+        device = await navigator.bluetooth.requestDevice({
+          filters: [{ namePrefix: "ESP32_6WD" }],
+          optionalServices: [SERVICE_UUID]
+        });
+
+        device.addEventListener("gattserverdisconnected", onDisconnected);
+
+        logLine("connecting to " + device.name + "...");
+        server = await device.gatt.connect();
+
+        logLine("opening UART service...");
+        service = await server.getPrimaryService(SERVICE_UUID);
+        rxCharacteristic = await service.getCharacteristic(RX_UUID);
+
+        setConnectedUI(device.name);
+        logLine("connected via Bluetooth ✅");
+        logLine("device name: " + device.name);
+
+        await sendCommand("S", "safety stop");
+        await sendCommand("V255", "speed set 255");
+
+      } catch (error) {
+        logLine("ERROR: " + error.message);
+        setDisconnectedUI();
+      }
+    }
+
+    function onDisconnected() {
+      rxCharacteristic = null;
+      setDisconnectedUI();
+      logLine("Bluetooth disconnected");
+    }
+
+    async function sendCommand(cmd, label = "") {
+      if (!rxCharacteristic) {
+        logLine("connect Bluetooth first");
+        return;
+      }
+
+      try {
+        const encoder = new TextEncoder();
+        await rxCharacteristic.writeValue(encoder.encode(cmd));
+        logLine(`TX BLE -> ${cmd}${label ? " / " + label : ""}`);
+      } catch (error) {
+        logLine("send failed: " + error.message);
+      }
+    }
+
+    function moveCmd(cmd, label) {
+      sendCommand(cmd, label);
+    }
+
+    function stopCmd() {
+      sendCommand("S", "STOP");
+    }
+
+    function updateSpeed(value) {
+      document.getElementById("speedValue").innerText = value;
+      sendCommand("V" + value, "speed");
+    }
+
+    document.addEventListener("contextmenu", e => e.preventDefault());
+  </script>
+</body>
+</html>
