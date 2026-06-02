@@ -24,7 +24,7 @@ WebServer server(80);
 #define LED_PIN 2
 
 // ===== SETTINGS =====
-int speedLimit = 140;
+int speedLimit = 220;
 const int rampStep = 5;
 const int rampInterval = 20;
 
