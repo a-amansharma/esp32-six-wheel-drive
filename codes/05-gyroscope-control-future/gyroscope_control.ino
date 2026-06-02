@@ -21,9 +21,9 @@ WebServer server(80);
 
 #define LED_PIN 2
 
-int speedLimit = 250;
-const int rampStep = 8;
-const int rampInterval = 18;
+int speedLimit = 255;
+const int rampStep = 5;
+const int rampInterval = 22;
 
 int currentLeft = 0, currentRight = 0;
 int targetLeft = 0, targetRight = 0;
