@@ -1,4 +1,4 @@
-Here's a complete updated **README.md** you can directly copy-paste into your GitHub repository:
+
 
 # 🚗 ESP32-6WD (6-Wheel Drive Rover)
 
