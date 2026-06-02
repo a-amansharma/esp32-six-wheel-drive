@@ -400,7 +400,7 @@ h3 {
 }
 
 .speedBox label {
-  font-size:26px;
+  font-size:22px;
   font-weight:900;
   margin-bottom:14px;
   padding:5px 18px;
@@ -447,7 +447,7 @@ input[type=range]::-webkit-slider-thumb {
 }
 
 #speedVal {
-  font-size:31px;
+  font-size:25px;
   font-weight:900;
   width:58px;
   text-align:left;
