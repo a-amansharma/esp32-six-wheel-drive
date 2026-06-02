@@ -1,7 +1,6 @@
 #include <WiFi.h>
 #include <WebServer.h>
 
-// ===== WIFI AP =====
 const char* ssid = "ESP32-6WD-GYRO";
 const char* password = "12345678";
 
@@ -10,7 +9,6 @@ const int phonePort = 80;
 
 WebServer server(80);
 
-// ===== SAME PINOUT =====
 #define L_LEN   32
 #define L_REN   33
 #define L_LPWM  18
@@ -23,10 +21,9 @@ WebServer server(80);
 
 #define LED_PIN 2
 
-// ===== SETTINGS =====
-int speedLimit = 220;
-const int rampStep = 5;
-const int rampInterval = 20;
+int speedLimit = 250;
+const int rampStep = 8;
+const int rampInterval = 18;
 
 int currentLeft = 0, currentRight = 0;
 int targetLeft = 0, targetRight = 0;
@@ -40,9 +37,9 @@ unsigned long lastDataTime = 0;
 
 bool tiltActive = false;
 
-// ===== MOTOR =====
 void leftMotor(int v) {
   v = constrain(v, -255, 255);
+
   if (v > 0) {
     ledcWrite(L_RPWM, v);
     ledcWrite(L_LPWM, 0);
@@ -57,6 +54,7 @@ void leftMotor(int v) {
 
 void rightMotor(int v) {
   v = constrain(v, -255, 255);
+
   if (v > 0) {
     ledcWrite(R_RPWM, v);
     ledcWrite(R_LPWM, 0);
@@ -70,10 +68,14 @@ void rightMotor(int v) {
 }
 
 void stopCar() {
-  targetLeft = targetRight = 0;
-  currentLeft = currentRight = 0;
+  targetLeft = 0;
+  targetRight = 0;
+  currentLeft = 0;
+  currentRight = 0;
+
   leftMotor(0);
   rightMotor(0);
+
   tiltActive = false;
   digitalWrite(LED_PIN, LOW);
 }
@@ -89,6 +91,7 @@ void updateMotors() {
 
   if (currentLeft < targetLeft) currentLeft += rampStep;
   if (currentLeft > targetLeft) currentLeft -= rampStep;
+
   if (currentRight < targetRight) currentRight += rampStep;
   if (currentRight > targetRight) currentRight -= rampStep;
 
@@ -99,7 +102,6 @@ void updateMotors() {
   rightMotor(currentRight);
 }
 
-// ===== SIMPLE JSON VALUE PARSER =====
 bool getValue(String data, const char* key, float &value) {
   String k = "\"" + String(key) + "\"";
   int p = data.indexOf(k);
@@ -115,6 +117,7 @@ bool getValue(String data, const char* key, float &value) {
   val.trim();
 
   if (val == "null" || val.length() == 0) return false;
+
   value = val.toFloat();
   return true;
 }
@@ -160,21 +163,23 @@ int mapTilt(float v) {
 
   float sign = v > 0 ? 1 : -1;
   float mag = abs(v);
+
   if (mag > maxTilt) mag = maxTilt;
 
   mag = (mag - deadZone) / (maxTilt - deadZone) * 100.0;
+
   return (int)(sign * mag);
 }
 
 void processPhoneData() {
-  if (millis() - lastReadTime < 80) return;
+  if (millis() - lastReadTime < 50) return;
   lastReadTime = millis();
 
   float x, y, z;
   bool ok = readPhyphox(x, y, z);
 
   if (!ok) {
-    if (millis() - lastDataTime > 700) {
+    if (millis() - lastDataTime > 2000) {
       stopCar();
     }
     return;
@@ -198,11 +203,14 @@ void processPhoneData() {
   float tx = x - zeroX;
   float ty = y - zeroY;
 
-  int turn = -mapTilt(tx);
+  int turn = mapTilt(tx);
   int drive = mapTilt(ty);
 
-  tiltActive = (abs(turn) > 8 || abs(drive) > 8);
+if (drive <= 0) {
+  turn = -turn;
+}
 
+  tiltActive = (abs(turn) > 8 || abs(drive) > 8);
   digitalWrite(LED_PIN, tiltActive ? HIGH : LOW);
 
   int throttle = map(drive, -100, 100, -speedLimit, speedLimit);
@@ -214,14 +222,13 @@ void processPhoneData() {
   setTargets(leftOut, rightOut);
 }
 
-// ===== WEB PAGE FOR STOP / SPEED =====
 void handleRoot() {
   server.send(200, "text/html",
   "<html><body style='font-family:Arial;text-align:center'>"
   "<h2>ESP32 6WD phyphox Gyro</h2>"
-  "<p>Keep phyphox open on iPhone: Raw Sensors → Acceleration with g</p>"
+  "<p>Keep phyphox open: Raw Sensors → Acceleration with g</p>"
   "<button style='font-size:25px;background:red;color:white;padding:20px;border-radius:15px' onclick=\"fetch('/S')\">STOP</button>"
-  "<br><br>Speed <input type='range' min='0' max='255' value='140' oninput=\"fetch('/speed?value='+this.value)\">"
+  "<br><br>Speed <input type='range' min='0' max='255' value='250' oninput=\"fetch('/speed?value='+this.value)\">"
   "</body></html>");
 }
 
@@ -231,7 +238,10 @@ void handleStop() {
 }
 
 void handleSpeed() {
-  if (server.hasArg("value")) speedLimit = constrain(server.arg("value").toInt(), 0, 255);
+  if (server.hasArg("value")) {
+    speedLimit = constrain(server.arg("value").toInt(), 0, 255);
+  }
+
   server.send(200, "text/plain", "OK");
 }
 
@@ -263,6 +273,7 @@ void setup() {
   server.on("/", handleRoot);
   server.on("/S", handleStop);
   server.on("/speed", handleSpeed);
+
   server.begin();
 
   for (int i = 0; i < 2; i++) {
