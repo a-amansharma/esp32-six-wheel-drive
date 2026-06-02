@@ -1,12 +1,12 @@
 
 
-# 🚗 ESP32-6WD (6-Wheel Drive Rover)
+# 🚗 ESP32-6WD (6-Wheel Drive Car)
 
 My first ESP32 robotics project.
 
-ESP32-6WD is a six-wheel-drive robotic rover built using an ESP32 development board. This project was created to learn robotics, motor control, wireless communication, embedded systems, AI, and autonomous navigation.
+ESP32-6WD is a six-wheel-drive robotic Car built using an ESP32 development board. This project was created to learn robotics, motor control, wireless communication, embedded systems, AI, and autonomous navigation.
 
-The objective is to continuously upgrade the same rover through multiple control technologies, starting from simple button control and progressing toward AI-powered vision and autonomous operation.
+The objective is to continuously upgrade the same Car through multiple control technologies, starting from simple button control and progressing toward AI-powered vision and autonomous operation.
 
 ---
 
@@ -25,9 +25,9 @@ images/
 
 # 🎯 Project Objective
 
-The primary goal of ESP32-6WD is to explore different robotics control technologies using a single rover platform.
+The primary goal of ESP32-6WD is to explore different robotics control technologies using a single Car platform.
 
-Instead of building multiple robots, this project upgrades the same rover through multiple versions, allowing direct comparison of control methods, performance, usability, and intelligence.
+Instead of building multiple robots, this project upgrades the same Car through multiple versions, allowing direct comparison of control methods, performance, usability, and intelligence.
 
 The journey begins with simple button controls and gradually progresses toward AI-based autonomous robotics.
 
@@ -63,7 +63,7 @@ The journey begins with simple button controls and gradually progresses toward A
 * Right button
 * Stop button
 
-The first working version of the rover.
+The first working version of the Car.
 
 ---
 
@@ -127,7 +127,7 @@ Turns a smartphone into a motion controller.
 
 * Bluetooth Low Energy (BLE)
 * Bluefy browser support
-* Direct phone-to-rover communication
+* Direct phone-to-Car communication
 * No Wi-Fi required
 
 Provides wireless control through Bluetooth.
@@ -138,12 +138,12 @@ Provides wireless control through Bluetooth.
 
 ### Features
 
-* Control rover from anywhere
+* Control Car from anywhere
 * Internet-based communication
 * Remote operation beyond local Wi-Fi
 * Long-range connectivity
 
-Enables global rover access.
+Enables global Car access.
 
 ---
 
@@ -171,7 +171,7 @@ Stop
 ### Features
 
 * Draw route on screen
-* Rover follows drawn path
+* Car follows drawn path
 * Automatic navigation
 * Waypoint-based movement
 
@@ -182,7 +182,7 @@ User Draws:
 
 ⬆ → → ↓ ←
 
-Rover follows the same route automatically.
+Car follows the same route automatically.
 ```
 
 ---
@@ -205,7 +205,7 @@ Go to the door and stop.
 Move backward and rotate right.
 ```
 
-The AI converts instructions into rover actions automatically.
+The AI converts instructions into Car actions automatically.
 
 ---
 
@@ -213,7 +213,7 @@ The AI converts instructions into rover actions automatically.
 
 ### Features
 
-* Phone camera acts as rover eyes
+* Phone camera acts as Car eyes
 * Object detection
 * Color tracking
 * Face tracking
@@ -276,7 +276,7 @@ D27        --->  R_PWM
 * ESP32 Development Board
 * Six DC Geared Motors
 * Dual Motor Driver Modules
-* 6WD Rover Chassis
+* 6WD Car Chassis
 * Li-Ion Battery Pack
 * Jumper Wires
 * Smartphone
@@ -317,7 +317,7 @@ ESP32-6WD/
 
 # 🚀 Future Goal
 
-Transform ESP32-6WD from a simple remote-controlled rover into a fully AI-powered autonomous robotic platform capable of understanding commands, seeing the environment, identifying targets, and performing intelligent navigation.
+Transform ESP32-6WD from a simple remote-controlled Car into a fully AI-powered autonomous robotic platform capable of understanding commands, seeing the environment, identifying targets, and performing intelligent navigation.
 
 ---
 
