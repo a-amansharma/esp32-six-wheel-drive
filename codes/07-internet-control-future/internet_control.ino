@@ -45,6 +45,16 @@ const unsigned long hornSafetyTimeout = 900;
 
 bool continuousHorn = false;
 unsigned long lastHornCommand = 0;
+unsigned long minHornUntil = 0;
+bool hornStopAfterMinimum = false;
+const unsigned long minHornBeepMs = 500;
+
+bool hornPulseMode = false;
+bool lightBlinkMode = false;
+bool normalHeadlightOn = false;
+bool pulseState = false;
+unsigned long lastPulseToggle = 0;
+const unsigned long pulseHalfInterval = 165;  // smoother blink/beep: about 3 times per second
 
 bool buzzerOutputOn = false;
 unsigned long bluePulseUntil = 0;
@@ -53,6 +63,7 @@ unsigned long ignoreMotionUntil = 0;
 const unsigned long startupCommandIgnoreMs = 1500;
 
 void hardStopRover();
+void fullStopAll();
 
 void setupPWM() {
   ledcAttach(L_PWM1, 1000, 8);
@@ -87,10 +98,39 @@ void connectedBeep() {
   hardStopRover();
 }
 
-void updateHorn() {
-  if (continuousHorn && millis() - lastHornCommand > hornSafetyTimeout) {
-    continuousHorn = false;
-    hornOff();
+void updateHornAndLight() {
+  unsigned long now = millis();
+
+  if (hornPulseMode || lightBlinkMode) {
+    if (now - lastPulseToggle >= pulseHalfInterval) {
+      lastPulseToggle = now;
+      pulseState = !pulseState;
+    }
+  } else {
+    pulseState = false;
+  }
+
+  if (hornPulseMode) {
+    hornStopAfterMinimum = false;
+    if (pulseState) hornOn();
+    else hornOff();
+  } else {
+    if (hornStopAfterMinimum && now >= minHornUntil) {
+      hornStopAfterMinimum = false;
+      hornOff();
+    }
+
+    if (continuousHorn && now - lastHornCommand > hornSafetyTimeout) {
+      continuousHorn = false;
+      hornStopAfterMinimum = false;
+      hornOff();
+    }
+  }
+
+  if (lightBlinkMode) {
+    digitalWrite(HEADLIGHT_PIN, pulseState ? HIGH : LOW);
+  } else {
+    digitalWrite(HEADLIGHT_PIN, normalHeadlightOn ? HIGH : LOW);
   }
 }
 
@@ -175,7 +215,7 @@ void setCommand(String cmd) {
   } else if (cmd == "FR") {
     setTargetDirect(-speedLimit, -speedLimit / 2);
   } else if (cmd == "S" || cmd == "N") {
-    setTargetDirect(0, 0);
+    fullStopAll();
   }
 }
 
@@ -259,26 +299,77 @@ void handleMQTT(String msg) {
 
 
   if (msg == "H1") {
-    continuousHorn = true;
-    lastHornCommand = millis();
-    hornOn();
-    pulseBlueLed(hornSafetyTimeout);
+    if (!hornPulseMode) {
+      unsigned long now = millis();
+      continuousHorn = true;
+      hornStopAfterMinimum = false;
+      lastHornCommand = now;
+      minHornUntil = now + minHornBeepMs;
+      hornOn();
+      pulseBlueLed(hornSafetyTimeout);
+    }
     return;
   }
 
   if (msg == "H0") {
     continuousHorn = false;
+    if (!hornPulseMode) {
+      if (millis() < minHornUntil) {
+        hornStopAfterMinimum = true;
+      } else {
+        hornStopAfterMinimum = false;
+        hornOff();
+      }
+    }
+    return;
+  }
+
+  if (msg == "HPULSE1") {
+    if (!hornPulseMode) {
+      hornPulseMode = true;
+      continuousHorn = false;
+      hornStopAfterMinimum = false;
+      lastPulseToggle = millis();
+      pulseState = true;
+      hornOn();
+      pulseBlueLed(300);
+    }
+    return;
+  }
+
+  if (msg == "HPULSE0") {
+    hornPulseMode = false;
+    continuousHorn = false;
+    hornStopAfterMinimum = false;
     hornOff();
     return;
   }
 
   if (msg == "LIGHT1") {
-    digitalWrite(HEADLIGHT_PIN, HIGH);
+    normalHeadlightOn = true;
+    if (!lightBlinkMode) digitalWrite(HEADLIGHT_PIN, HIGH);
     return;
   }
 
   if (msg == "LIGHT0") {
-    digitalWrite(HEADLIGHT_PIN, LOW);
+    normalHeadlightOn = false;
+    if (!lightBlinkMode) digitalWrite(HEADLIGHT_PIN, LOW);
+    return;
+  }
+
+  if (msg == "LBLINK1") {
+    if (!lightBlinkMode) {
+      lightBlinkMode = true;
+      lastPulseToggle = millis();
+      pulseState = true;
+      digitalWrite(HEADLIGHT_PIN, HIGH);
+    }
+    return;
+  }
+
+  if (msg == "LBLINK0") {
+    lightBlinkMode = false;
+    digitalWrite(HEADLIGHT_PIN, normalHeadlightOn ? HIGH : LOW);
     return;
   }
 
@@ -307,6 +398,19 @@ void hardStopRover() {
   currentRight = 0;
   setMotorRaw(0, 0);
   lastCommandTime = millis();
+}
+
+void fullStopAll() {
+  hardStopRover();
+  continuousHorn = false;
+  hornStopAfterMinimum = false;
+  hornPulseMode = false;
+  lightBlinkMode = false;
+  normalHeadlightOn = false;
+  pulseState = false;
+  hornOff();
+  digitalWrite(HEADLIGHT_PIN, LOW);
+  digitalWrite(BLUE_LED, LOW);
 }
 
 void connectWiFi() {
@@ -342,7 +446,12 @@ void reconnectMQTT() {
       client.subscribe(controlTopic);
       hardStopRover();
       ignoreMotionUntil = millis() + startupCommandIgnoreMs;
+      hornPulseMode = false;
+      hornStopAfterMinimum = false;
+      lightBlinkMode = false;
+      normalHeadlightOn = false;
       hornOff();
+      digitalWrite(HEADLIGHT_PIN, LOW);
       digitalWrite(BLUE_LED, LOW);
     } else {
       Serial.print("failed rc=");
@@ -410,6 +519,8 @@ void setup() {
   setMotorRaw(0, 0);
   hornOff();
   digitalWrite(BLUE_LED, LOW);
+  normalHeadlightOn = false;
+  lightBlinkMode = false;
   digitalWrite(HEADLIGHT_PIN, LOW);
 
   connectWiFi();
@@ -435,7 +546,7 @@ void loop() {
     targetRight = 0;
   }
 
-  updateHorn();
+  updateHornAndLight();
   rampMotor();
   updateBlueLed();
 }
