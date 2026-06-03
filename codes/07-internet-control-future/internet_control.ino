@@ -49,6 +49,11 @@ unsigned long lastHornCommand = 0;
 bool buzzerOutputOn = false;
 unsigned long bluePulseUntil = 0;
 
+unsigned long ignoreMotionUntil = 0;
+const unsigned long startupCommandIgnoreMs = 1500;
+
+void hardStopRover();
+
 void setupPWM() {
   ledcAttach(L_PWM1, 1000, 8);
   ledcAttach(L_PWM2, 1000, 8);
@@ -70,6 +75,16 @@ void hornOn() {
 void hornOff() {
   buzzerOutputOn = false;
   ledcWrite(BUZZER_PIN, 0);
+}
+
+void connectedBeep() {
+  // Beep only, no motor movement.
+  hardStopRover();
+  ledcWrite(BUZZER_PIN, 128);
+  delay(1000);
+  ledcWrite(BUZZER_PIN, 0);
+  buzzerOutputOn = false;
+  hardStopRover();
 }
 
 void updateHorn() {
@@ -124,6 +139,11 @@ void setTargetDirect(int leftSpeed, int rightSpeed) {
   int l = constrain(leftSpeed, -255, 255);
   int r = constrain(rightSpeed, -255, 255);
 
+  // Remove tiny noise/jitter commands.
+  const int motorNoiseFloor = 12;
+  if (abs(l) < motorNoiseFloor) l = 0;
+  if (abs(r) < motorNoiseFloor) r = 0;
+
   if (l != 0 || r != 0) {
     l = constrain(l - trimValue, -255, 255);
     r = constrain(r + trimValue, -255, 255);
@@ -172,7 +192,7 @@ void setJoystick(String msg) {
   x = constrain(x, -100, 100);
   y = constrain(y, -100, 100);
 
-  const int deadZone = 8;
+  const int deadZone = 14;
   if (abs(x) < deadZone && abs(y) < deadZone) {
     setTargetDirect(0, 0);
     return;
@@ -185,9 +205,16 @@ void setJoystick(String msg) {
   int right = 0;
 
   if (abs(y) >= deadZone) {
-    // Button-style corner turning: both sides keep same direction, one side becomes slower.
-    left = forward + (turn / 2);
-    right = forward - (turn / 2);
+    // Button-style corner turning:
+    // Forward corners use normal turn mix.
+    // Backward corners need reverse mix so BL/BR match the 8 button logic.
+    if (forward > 0) {
+      left = forward - (turn / 2);
+      right = forward + (turn / 2);
+    } else {
+      left = forward + (turn / 2);
+      right = forward - (turn / 2);
+    }
   } else {
     // Pure left/right spin stays exactly like button mode.
     left = turn;
@@ -205,6 +232,14 @@ void handleMQTT(String msg) {
 
   Serial.print("MQTT: ");
   Serial.println(msg);
+
+  bool isMotionCommand = msg == "F" || msg == "B" || msg == "L" || msg == "R" || msg == "FL" || msg == "FR" || msg == "BL" || msg == "BR" || msg.startsWith("J,");
+
+  if (isMotionCommand && millis() < ignoreMotionUntil) {
+    hardStopRover();
+    Serial.println("Startup/reconnect motion command ignored");
+    return;
+  }
 
   if (msg.startsWith("SPD,")) {
     speedLimit = constrain(msg.substring(4).toInt(), 0, 255);
@@ -287,10 +322,12 @@ void connectWiFi() {
   }
 
   hardStopRover();
+  ignoreMotionUntil = millis() + startupCommandIgnoreMs;
   digitalWrite(BLUE_LED, LOW);
   Serial.println();
   Serial.println("WiFi Connected");
   Serial.println(WiFi.localIP());
+  connectedBeep();
 }
 
 void reconnectMQTT() {
@@ -304,6 +341,7 @@ void reconnectMQTT() {
       Serial.println("connected");
       client.subscribe(controlTopic);
       hardStopRover();
+      ignoreMotionUntil = millis() + startupCommandIgnoreMs;
       hornOff();
       digitalWrite(BLUE_LED, LOW);
     } else {
