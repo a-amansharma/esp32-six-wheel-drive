@@ -31,11 +31,11 @@
     .app {
       width: 100%;
       min-height: 100dvh;
-      padding: 22px 18px 20px;
+      padding: 12px 14px 12px;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 12px
+      gap: 8px
     }
 
     .header {
@@ -43,12 +43,12 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 6px
+      gap: 4px
     }
 
     h1 {
       margin: 0;
-      font-size: 36px;
+      font-size: 32px;
       line-height: .95;
       font-weight: 1000;
       letter-spacing: -1px;
@@ -158,6 +158,12 @@
       transition: transform .5s cubic-bezier(.2, .9, .25, 1)
     }
 
+    .controlStage {
+      width: 286px;
+      height: 304px;
+      overflow: hidden
+    }
+
     .controlStage.joystickMode .track {
       transform: translateX(-50%)
     }
@@ -189,8 +195,8 @@
 
     .controls {
       position: relative;
-      width: 292px;
-      height: 292px;
+      width: 276px;
+      height: 276px;
       border-radius: 50%;
       background: radial-gradient(circle at 35% 25%, rgba(255, 255, 255, .96), rgba(245, 245, 245, .86) 28%, rgba(190, 190, 190, .42) 60%, rgba(60, 60, 60, .17) 100%), linear-gradient(145deg, #fdfdfd, #d7d7d7);
       box-shadow: 18px 18px 35px rgba(0, 0, 0, .32), -12px -12px 28px rgba(255, 255, 255, .95), inset 8px 8px 18px rgba(255, 255, 255, .82), inset -12px -12px 25px rgba(0, 0, 0, .15)
@@ -199,10 +205,10 @@
     .controls::before {
       content: "";
       position: absolute;
-      width: 228px;
-      height: 228px;
-      left: 32px;
-      top: 32px;
+      width: 216px;
+      height: 216px;
+      left: 30px;
+      top: 30px;
       border-radius: 50%;
       background: radial-gradient(circle at 50% 50%, rgba(230, 230, 230, .45), rgba(120, 120, 120, .16) 60%, rgba(0, 0, 0, .12)), linear-gradient(145deg, #eee, #fff);
       box-shadow: inset 10px 10px 22px rgba(0, 0, 0, .13), inset -10px -10px 22px rgba(255, 255, 255, .95)
@@ -210,8 +216,8 @@
 
     .btn {
       position: absolute;
-      width: 68px;
-      height: 68px;
+      width: 64px;
+      height: 64px;
       border: none;
       outline: none;
       border-radius: 50%;
@@ -239,10 +245,10 @@
     }
 
     .stop {
-      width: 92px;
-      height: 92px;
-      left: 100px;
-      top: 100px;
+      width: 86px;
+      height: 86px;
+      left: 95px;
+      top: 95px;
       background: radial-gradient(circle at 30% 20%, #fff 0 8%, #ffb4b4 18%, #ff3030 48%, #b40000 76%, #530000 100%);
       color: white;
       font-size: 14px;
@@ -253,48 +259,48 @@
     }
 
     .forward {
-      left: 112px;
-      top: 14px
+      left: 106px;
+      top: 13px
     }
 
     .back {
-      left: 112px;
-      bottom: 14px
+      left: 106px;
+      bottom: 13px
     }
 
     .left {
-      left: 14px;
-      top: 112px
+      left: 13px;
+      top: 106px
     }
 
     .right {
-      right: 14px;
-      top: 112px
+      right: 13px;
+      top: 106px
     }
 
     .fl {
-      left: 46px;
-      top: 46px
+      left: 42px;
+      top: 42px
     }
 
     .fr {
-      right: 46px;
-      top: 46px
+      right: 42px;
+      top: 42px
     }
 
     .bl {
-      left: 46px;
-      bottom: 46px
+      left: 42px;
+      bottom: 42px
     }
 
     .br {
-      right: 46px;
-      bottom: 46px
+      right: 42px;
+      bottom: 42px
     }
 
     .corner {
-      width: 44px;
-      height: 44px;
+      width: 42px;
+      height: 42px;
       font-size: 12px;
       font-weight: 900;
       color: white
@@ -332,8 +338,8 @@
     }
 
     .joyWrap {
-      width: 292px;
-      height: 292px;
+      width: 276px;
+      height: 276px;
       border-radius: 50%;
       background: radial-gradient(circle at 35% 25%, rgba(255, 255, 255, .95), rgba(245, 245, 245, .85) 28%, rgba(190, 190, 190, .45) 60%, rgba(60, 60, 60, .18) 100%), linear-gradient(145deg, #fdfdfd, #d7d7d7);
       box-shadow: 18px 18px 35px rgba(0, 0, 0, .35), -12px -12px 28px rgba(255, 255, 255, .95), inset 8px 8px 18px rgba(255, 255, 255, .8), inset -12px -12px 25px rgba(0, 0, 0, .16);
@@ -355,8 +361,8 @@
     }
 
     .joyBase {
-      width: 214px;
-      height: 214px;
+      width: 202px;
+      height: 202px;
       border-radius: 50%;
       position: relative;
       background: radial-gradient(circle at center, rgba(0, 120, 255, .07), transparent 38%), radial-gradient(circle at center, transparent 0 60%, rgba(0, 0, 0, .12) 61%, transparent 64%);
@@ -386,12 +392,12 @@
     }
 
     .knob {
-      width: 96px;
-      height: 96px;
+      width: 94px;
+      height: 94px;
       border-radius: 50%;
       position: absolute;
-      left: 59px;
-      top: 59px;
+      left: 53px;
+      top: 53px;
       background: radial-gradient(circle at 30% 22%, #fff, #bfe6ff 20%, #268fff 48%, #064bbd 78%, #021c56 100%);
       box-shadow: 0 22px 22px rgba(0, 0, 0, .35), inset 8px 8px 14px rgba(255, 255, 255, .55), inset -10px -12px 18px rgba(0, 0, 0, .42), 0 0 24px rgba(0, 120, 255, .4);
       z-index: 5
@@ -444,14 +450,14 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 14px;
+      gap: 9px;
       width: 100%
     }
 
     .speedBox {
-      width: 325px;
-      min-height: 112px;
-      padding: 18px 18px 16px;
+      width: 304px;
+      min-height: 96px;
+      padding: 12px 14px 12px;
       border-radius: 34px;
       background: linear-gradient(145deg, #fff, #eee);
       box-shadow: 10px 10px 22px rgba(0, 0, 0, .25), -8px -8px 20px rgba(255, 255, 255, .98), inset 3px 3px 8px rgba(255, 255, 255, .85), inset -4px -4px 10px rgba(0, 0, 0, .08);
@@ -462,9 +468,9 @@
     }
 
     .speedBox label {
-      font-size: 26px;
+      font-size: 22px;
       font-weight: 1000;
-      margin-bottom: 14px;
+      margin-bottom: 9px;
       padding: 5px 18px;
       border-radius: 22px;
       background: linear-gradient(145deg, #fff, #e5e5e5);
@@ -480,7 +486,7 @@
     }
 
     input[type=range] {
-      width: 215px;
+      width: 198px;
       height: 10px;
       appearance: none;
       border-radius: 20px;
@@ -537,8 +543,8 @@
     }
 
     .hornButton {
-      width: 96px;
-      height: 96px;
+      width: 94px;
+      height: 94px;
       border: none;
       border-radius: 50%;
       background: radial-gradient(circle at 30% 20%, #fff 0 9%, #ffe7a6 20%, #ffb000 48%, #d16b00 76%, #5c2300 100%);
@@ -962,7 +968,7 @@
     }
 
     .lightIcon .lampFill {
-      fill: transparent;
+      fill: currentColor;
       transition: fill .18s ease
     }
 
@@ -982,6 +988,27 @@
 
     .hornArea {
       display: none !important
+    }
+
+    .hornIcon,
+    .lightIcon {
+      color: #111;
+      fill: currentColor;
+      stroke: currentColor;
+    }
+
+    .footerText {
+      text-align: center;
+      font-size: 13px;
+      font-weight: 800;
+      color: #6b7280;
+      margin-top: -3px;
+      margin-bottom: 2px;
+      text-shadow: 0 1px 0 rgba(255,255,255,.9);
+    }
+
+    .statusDock {
+      margin-top: 2px;
     }
 
     @media (max-width:390px) {
@@ -1096,9 +1123,11 @@
       <div class="topBar">
         <button class="toolBtn" id="hornButton" aria-label="Horn">
           <svg class="toolIcon hornIcon" viewBox="0 0 48 48" aria-hidden="true">
-            <path d="M8 28h7l13 9V11L15 20H8z"></path>
-            <path class="soundLine" d="M34 18c3 3 3 9 0 12"></path>
-            <path class="soundLine" d="M39 13c6 6 6 16 0 22"></path>
+            <path d="M8 28h9l14 8V12L17 20H8z"></path>
+            <path d="M8 20v8"></path>
+            <path d="M17 20v8"></path>
+            <path d="M31 16c5 1 9 5 9 8s-4 7-9 8"></path>
+            <path class="soundLine" d="M40 17c3 2 5 4 5 7s-2 5-5 7"></path>
           </svg>
         </button>
         <div class="titleCore">
@@ -1107,17 +1136,17 @@
           <div class="neonLine"></div>
         </div>
         <button class="toolBtn" id="lightButton" aria-label="Headlight">
-          <svg class="toolIcon lightIcon" viewBox="0 0 48 48" aria-hidden="true">
-            <path class="lampFill" d="M11 17h16c5 0 9 4 9 9s-4 9-9 9H11z"></path>
-            <path d="M11 17h16c5 0 9 4 9 9s-4 9-9 9H11z"></path>
-            <path d="M11 15v22"></path>
-            <path class="beam" d="M38 18h6"></path>
-            <path class="beam" d="M40 26h5"></path>
-            <path class="beam" d="M38 34h6"></path>
+          <svg class="toolIcon lightIcon" viewBox="0 0 64 64" aria-hidden="true">
+            <path class="lampFill" fill="currentColor" d="M8 12C25 12 39 20.5 39 32S25 52 8 52C3.6 52 1 49.3 1 45V19c0-4.3 2.6-7 7-7z"></path>
+            <line class="beam" x1="48" y1="14" x2="60" y2="14" stroke="currentColor" stroke-width="6" stroke-linecap="round"></line>
+            <line class="beam" x1="47" y1="26" x2="60" y2="26" stroke="currentColor" stroke-width="6" stroke-linecap="round"></line>
+            <line class="beam" x1="47" y1="38" x2="60" y2="38" stroke="currentColor" stroke-width="6" stroke-linecap="round"></line>
+            <line class="beam" x1="48" y1="50" x2="60" y2="50" stroke="currentColor" stroke-width="6" stroke-linecap="round"></line>
           </svg>
         </button>
       </div>
     </div>
+    <div class="statusDock" id="statusDock"><span class="netDot"></span><span id="netText">Connecting cloud link...</span></div>
     <div class="trimArea">
       <div class="trimBox"><input id="trimSlider" type="range" min="-25" max="25" value="0"></div>
     </div>
@@ -1168,16 +1197,16 @@
         <div class="speedRow"><input id="speedSlider" type="range" min="0" max="255" value="140"><span
             id="speedVal">55%</span></div>
       </div>
-      <div class="statusDock" id="statusDock"><span class="netDot"></span><span id="netText">Connecting cloud
-          link...</span></div>
+      
     </div>
+    <div class="footerText">© 2025 ESP32-6WD V7 | Internet Cloud Control System</div>
   </div>
   <script>
     const mqttTopic = 'esp32_6wd_aman_v7/control';
     const statusDock = document.getElementById('statusDock'), netText = document.getElementById('netText'), controlStage = document.getElementById('controlStage'), modeSwitch = document.getElementById('modeSwitch'), joyBase = document.getElementById('joyBase'), knob = document.getElementById('knob'), speedSlider = document.getElementById('speedSlider'), trimSlider = document.getElementById('trimSlider'), hornButton = document.getElementById('hornButton'), lightButton = document.getElementById('lightButton');
-    let mode = 'buttons', joyActive = false, lastJoy = 0, maxMove = 62, latchedCmd = '', momentaryCmd = '', heartbeatTimer = null, joyX = 0, joyY = 0, hornActive = false, hornHoldTimer = null, hornHeld = false, lightOn = false;
+    let mode = 'buttons', joyActive = false, lastJoy = 0, maxMove = 62, latchedCmd = '', momentaryCmd = '', heartbeatTimer = null, joyX = 0, joyY = 0, hornActive = false, lightOn = false;
     const mqttClient = mqtt.connect('wss://broker.hivemq.com:8884/mqtt', { clientId: 'aman_v7_cloud_ui_' + Math.random().toString(16).slice(2, 10), clean: true, connectTimeout: 6000, reconnectPeriod: 2000 });
-    mqttClient.on('connect', () => { setStatus('online', 'Online • Internet connected'); publish('S'); publish('SPD,' + speedSlider.value); publish('TRIM,' + trimSlider.value); publish(lightOn ? 'LIGHT1' : 'LIGHT0'); startHeartbeat(); });
+    mqttClient.on('connect', () => { setStatus('online', 'Internet Connected • MQTT Broker Connected'); publish('S'); publish('SPD,' + speedSlider.value); publish('TRIM,' + trimSlider.value); publish(lightOn ? 'LIGHT1' : 'LIGHT0'); startHeartbeat(); });
     mqttClient.on('reconnect', () => setStatus('connecting', 'Connecting cloud link...'));
     mqttClient.on('offline', () => setStatus('fail', 'Offline • link lost'));
     mqttClient.on('error', () => setStatus('fail', 'Connection failed'));
@@ -1204,16 +1233,14 @@
     function startHornPress(e) {
       e.preventDefault();
       hornButton.setPointerCapture(e.pointerId);
+      hornActive = true;
       hornButton.classList.add('active');
-      hornHeld = false;
-      if (hornHoldTimer) clearTimeout(hornHoldTimer);
-      hornHoldTimer = setTimeout(() => { hornHeld = true; hornActive = true; publish('H1'); }, 260);
+      publish('H1');
     }
     function endHornPress() {
+      hornActive = false;
       hornButton.classList.remove('active');
-      if (hornHoldTimer) clearTimeout(hornHoldTimer);
-      if (hornHeld) { hornActive = false; publish('H0'); }
-      else { publish('H2'); }
+      publish('H0');
     }
     hornButton.addEventListener('pointerdown', startHornPress);
     hornButton.addEventListener('pointerup', endHornPress);
