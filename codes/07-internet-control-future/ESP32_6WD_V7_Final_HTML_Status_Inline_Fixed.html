@@ -446,84 +446,6 @@
       z-index: 20
     }
 
-
-
-    .topControlRow {
-      width: min(100%, 318px);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      z-index: 20
-    }
-
-    .topControlRow .trimArea {
-      width: auto;
-      flex: 0 0 auto
-    }
-
-    .topControlRow .trimBox {
-      width: 124px;
-      height: 32px;
-      padding: 6px 10px
-    }
-
-    .topControlRow #trimSlider {
-      width: 100px
-    }
-
-    .topControlRow .modeSwitchBox {
-      position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      width: 184px;
-      height: 34px;
-      padding: 4px;
-      gap: 0;
-      flex: 0 0 auto;
-      overflow: hidden;
-      touch-action: pan-y;
-      cursor: pointer
-    }
-
-    .topControlRow .modeText {
-      position: relative;
-      z-index: 3;
-      width: 88px;
-      font-size: 11px;
-      line-height: 12px;
-      transition: color .22s ease, text-shadow .22s ease
-    }
-
-    .topControlRow .switch {
-      position: absolute;
-      z-index: 2;
-      left: 4px;
-      top: 4px;
-      width: 88px;
-      height: 26px;
-      border-radius: 999px;
-      pointer-events: none;
-      background: radial-gradient(circle at 28% 18%, #fff, #bfe6ff 28%, #248fff 65%, #0345a8 100%);
-      box-shadow: 0 5px 10px rgba(0, 0, 0, .28), inset 4px 4px 8px rgba(255, 255, 255, .55), inset -5px -5px 10px rgba(0, 0, 0, .28);
-      transition: left .24s cubic-bezier(.2, .9, .25, 1)
-    }
-
-    .topControlRow .switch.joy {
-      left: 92px
-    }
-
-    .topControlRow .knobSwitch {
-      display: none
-    }
-
-    .topControlRow .modeSwitchBox:not(.joyMode) .modeText:first-child,
-    .topControlRow .modeSwitchBox.joyMode .modeText:last-child {
-      color: #fff;
-      text-shadow: 0 2px 4px rgba(0, 0, 0, .55)
-    }
-
     .bottomDock {
       display: flex;
       flex-direction: column;
@@ -709,18 +631,6 @@
       .modeSwitchBox {
         display: none
       }
-
-      .topControlRow {
-        grid-column: 1/-1;
-        grid-row: 2;
-        align-self: start;
-        width: auto
-      }
-
-      .topControlRow .trimArea {
-        margin-top: 52px
-      }
-
 
       .controlStage {
         display: contents;
@@ -1016,23 +926,20 @@
       height: 48px;
       border: 0;
       border-radius: 15px;
-      background: radial-gradient(circle at 30% 18%, #fff 0 14%, #eef6ff 28%, #d7e5f8 58%, #b7c6dc 100%);
-      box-shadow: 6px 6px 13px rgba(0, 0, 0, .2), -5px -5px 13px rgba(255, 255, 255, .95), inset 3px 3px 6px rgba(255, 255, 255, .82), inset -4px -5px 8px rgba(0, 0, 0, .13);
+      background: linear-gradient(145deg, #fff, #e8edf5);
+      box-shadow: 4px 4px 10px rgba(0, 0, 0, .14), -4px -4px 10px rgba(255, 255, 255, .9), inset 1px 1px 2px rgba(255, 255, 255, .85), inset -1px -1px 3px rgba(0, 0, 0, .08);
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
       touch-action: none;
-      transition: transform .1s ease, box-shadow .12s ease, background .12s ease, filter .12s ease
+      transition: transform .1s ease, box-shadow .16s ease
     }
 
-.toolBtn:active,
-.toolBtn.active,
-.toolBtn.lightOn {
-      transform: translateY(5px) scale(.92);
-      background: radial-gradient(circle at 32% 20%, #fff 0 10%, #8ed5ff 25%, #0077ff 62%, #003d99 100%);
-      filter: saturate(1.18);
-      box-shadow: inset 6px 7px 12px rgba(0, 0, 0, .42), inset -4px -4px 9px rgba(255, 255, 255, .36), 0 3px 6px rgba(0, 0, 0, .22), 0 0 18px rgba(0, 120, 255, .55)
+    .toolBtn:active,
+    .toolBtn.active {
+      transform: translateY(2px) scale(.96);
+      box-shadow: inset 3px 3px 7px rgba(0, 0, 0, .18), inset -3px -3px 7px rgba(255, 255, 255, .65), 0 2px 7px rgba(0, 0, 0, .12)
     }
 
     .toolIcon {
@@ -1051,16 +958,8 @@
     }
 
     .toolBtn.active .hornIcon {
-      stroke: #fff;
-      filter: drop-shadow(0 0 5px rgba(255, 255, 255, .55))
-    }
-
-    .toolBtn:active .toolIcon,
-    .toolBtn.active .toolIcon {
-      color: #fff;
-      stroke: #fff;
-      fill: currentColor;
-      filter: drop-shadow(0 2px 3px rgba(0, 0, 0, .35))
+      stroke: #006bff;
+      filter: drop-shadow(0 0 5px rgba(0, 120, 255, .55))
     }
 
     .lightIcon .beam {
@@ -1182,49 +1081,9 @@
       .speedBox {
         width: 304px
       }
-
-      .topControlRow {
-        width: min(100%, 314px);
-        gap: 6px
-      }
-
-      .topControlRow .trimBox {
-        width: 118px
-      }
-
-      .topControlRow #trimSlider {
-        width: 94px
-      }
-
-      .topControlRow .modeSwitchBox {
-        width: 184px
-      }
-
     }
 
     @media (orientation:landscape) and (min-width:700px) {
-      .topControlRow {
-        width: 100%;
-        justify-content: center;
-        grid-column: 1/-1;
-        grid-row: 2;
-        align-self: start;
-        pointer-events: auto
-      }
-
-      .topControlRow .modeSwitchBox {
-        display: none
-      }
-
-      .topControlRow .trimBox {
-        width: 220px;
-        height: 40px
-      }
-
-      .topControlRow #trimSlider {
-        width: 182px
-      }
-
       .topBar {
         width: min(100%, 720px);
         grid-template-columns: 64px 1fr 64px
@@ -1312,16 +1171,8 @@
     </div>
     <div class="statusDock" id="statusDock"><span class="netDot"></span><span id="netText">Connecting cloud
         link...</span></div>
-    <div class="topControlRow">
-      <div class="trimArea">
-        <div class="trimBox"><input id="trimSlider" type="range" min="-25" max="25" value="0"></div>
-      </div>
-      <div class="modeSwitchBox">
-        <div class="modeText">Button</div><button class="switch" id="modeSwitch">
-          <div class="knobSwitch"></div>
-        </button>
-        <div class="modeText">Joystick</div>
-      </div>
+    <div class="trimArea">
+      <div class="trimBox"><input id="trimSlider" type="range" min="-25" max="25" value="0"></div>
     </div>
     <div class="controlStage" id="controlStage">
       <div class="track">
@@ -1359,6 +1210,12 @@
         </div>
       </div>
     </div>
+    <div class="modeSwitchBox">
+      <div class="modeText">Button</div><button class="switch" id="modeSwitch" onclick="toggleMode()">
+        <div class="knobSwitch"></div>
+      </button>
+      <div class="modeText">Joystick</div>
+    </div>
     <div class="bottomDock">
       <div class="speedBox"><label>Speed</label>
         <div class="speedRow"><input id="speedSlider" type="range" min="0" max="255" value="140"><span
@@ -1366,7 +1223,7 @@
       </div>
 
     </div>
-    <div class="footerText">© 2025 ESP32-6WD V7 | Designed by Aman Sharma</div>
+    <div class="footerText">© 2025 ESP32-6WD V7 | Internet Cloud Control System</div>
   </div>
   <script>
     const mqttTopic = 'esp32_6wd_aman_v7/control';
@@ -1383,38 +1240,7 @@
     function startHeartbeat() { if (heartbeatTimer) clearInterval(heartbeatTimer); heartbeatTimer = setInterval(() => { if (hornActive) publish('H1'); const cmd = activeCommand(); if (cmd) publish(cmd); }, 300) }
     function clearLatch() { latchedCmd = ''; document.querySelectorAll('.latchBtn').forEach(b => b.classList.remove('latched')) }
     function stopAll() { momentaryCmd = ''; clearLatch(); releaseJoy(false); publish('S') }
-    function setMode(newMode) { if (mode === newMode) return; stopAll(); mode = newMode; controlStage.classList.toggle('joystickMode', mode === 'joystick'); modeSwitch.classList.toggle('joy', mode === 'joystick'); modeSwitch.closest('.modeSwitchBox').classList.toggle('joyMode', mode === 'joystick') }
-    function toggleMode() { setMode(mode === 'buttons' ? 'joystick' : 'buttons') }
-    function bindModeSwitch() {
-      const box = modeSwitch.closest('.modeSwitchBox');
-      let startX = 0, dragging = false;
-      function modeFromPoint(x) {
-        const rect = box.getBoundingClientRect();
-        return x < rect.left + rect.width / 2 ? 'buttons' : 'joystick';
-      }
-      box.addEventListener('pointerdown', e => {
-        e.preventDefault();
-        startX = e.clientX;
-        dragging = true;
-        box.setPointerCapture(e.pointerId);
-      });
-      box.addEventListener('pointermove', e => {
-        if (!dragging) return;
-        const dx = e.clientX - startX;
-        if (mode === 'buttons' && dx > 18) setMode('joystick');
-        if (mode === 'joystick' && dx < -18) setMode('buttons');
-      });
-      function finish(e) {
-        if (!dragging) return;
-        dragging = false;
-        const dx = e.clientX - startX;
-        if (Math.abs(dx) < 10) setMode(modeFromPoint(e.clientX));
-      }
-      box.addEventListener('pointerup', finish);
-      box.addEventListener('pointercancel', () => { dragging = false });
-      box.addEventListener('lostpointercapture', () => { dragging = false });
-      box.classList.toggle('joyMode', mode === 'joystick');
-    }
+    function toggleMode() { stopAll(); mode = (mode === 'buttons') ? 'joystick' : 'buttons'; controlStage.classList.toggle('joystickMode', mode === 'joystick'); modeSwitch.classList.toggle('joy', mode === 'joystick') }
     function bindButtons() { document.querySelectorAll('.btn').forEach(btn => { const cmd = btn.dataset.cmd; btn.addEventListener('pointerdown', e => { e.preventDefault(); btn.setPointerCapture(e.pointerId); if (cmd === 'S') { stopAll(); btn.classList.add('active'); return } if (cmd === 'F' || cmd === 'B') { momentaryCmd = ''; if (latchedCmd === cmd) { clearLatch(); publish('S') } else { clearLatch(); latchedCmd = cmd; btn.classList.add('latched'); publish(cmd) } return } clearLatch(); momentaryCmd = cmd; btn.classList.add('active'); publish(cmd) }); const up = () => { btn.classList.remove('active'); if (cmd !== 'F' && cmd !== 'B' && cmd !== 'S') { momentaryCmd = ''; publish(latchedCmd || 'S') } if (cmd === 'S') btn.classList.remove('active') }; btn.addEventListener('pointerup', up); btn.addEventListener('pointercancel', up); btn.addEventListener('lostpointercapture', up) }) }
     function updateMaxMove() { maxMove = Math.min(joyBase.clientWidth, joyBase.clientHeight) * 0.27 }
     function sendJoy(x, y, force = false) { joyX = x; joyY = y; const now = Date.now(); if (!force && now - lastJoy < 45) return; lastJoy = now; publish('J,' + Math.round(x) + ',' + Math.round(y)) }
@@ -1451,7 +1277,7 @@
       publish(lightOn ? 'LIGHT1' : 'LIGHT0');
     }
     lightButton.addEventListener('click', toggleLight);
-    bindModeSwitch(); bindButtons(); setSpeed(speedSlider.value); setTrim(trimSlider.value); updateMaxMove(); startHeartbeat();
+    bindButtons(); setSpeed(speedSlider.value); setTrim(trimSlider.value); updateMaxMove(); startHeartbeat();
   </script>
 </body>
 
