@@ -6,7 +6,7 @@
 #define HEADLIGHT_PIN 23
 
 // CHANGE THESE ONLY
-const char* ssid = "Aman's iPhone";
+const char* ssid = "iPhone";
 const char* password = "244466666";
 
 // MQTT
@@ -28,7 +28,7 @@ PubSubClient client(espClient);
 #define R_PWM1 14
 #define R_PWM2 27
 
-int speedLimit = 255;
+int speedLimit = 140;
 int rampStep = 8;
 int rampInterval = 18;
 int trimValue = 0;   // -25 to +25
@@ -349,7 +349,25 @@ void rampMotor() {
   }
 }
 
+
 void setup() {
+    pinMode(32, OUTPUT);
+  pinMode(33, OUTPUT);
+  pinMode(18, OUTPUT);
+  pinMode(19, OUTPUT);
+  pinMode(26, OUTPUT);
+  pinMode(25, OUTPUT);
+  pinMode(14, OUTPUT);
+  pinMode(27, OUTPUT);
+
+  digitalWrite(32, LOW);
+  digitalWrite(33, LOW);
+  digitalWrite(18, LOW);
+  digitalWrite(19, LOW);
+  digitalWrite(26, LOW);
+  digitalWrite(25, LOW);
+  digitalWrite(14, LOW);
+  digitalWrite(27, LOW);
   Serial.begin(115200);
 
   pinMode(BLUE_LED, OUTPUT);
