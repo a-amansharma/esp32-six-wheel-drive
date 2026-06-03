@@ -63,6 +63,7 @@ unsigned long ignoreMotionUntil = 0;
 const unsigned long startupCommandIgnoreMs = 1500;
 
 void hardStopRover();
+void smoothStopRover();
 void fullStopAll();
 
 void setupPWM() {
@@ -215,7 +216,7 @@ void setCommand(String cmd) {
   } else if (cmd == "FR") {
     setTargetDirect(-speedLimit, -speedLimit / 2);
   } else if (cmd == "S" || cmd == "N") {
-    fullStopAll();
+    smoothStopRover();
   }
 }
 
@@ -389,6 +390,12 @@ void callback(char* topic, byte* payload, unsigned int length) {
   }
 
   handleMQTT(msg);
+}
+
+void smoothStopRover() {
+  targetLeft = 0;
+  targetRight = 0;
+  lastCommandTime = millis();
 }
 
 void hardStopRover() {

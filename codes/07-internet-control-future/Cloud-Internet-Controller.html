@@ -18,7 +18,7 @@
     html,
     body {
       margin: 0;
-      padding-bottom: 10px;
+      padding-bottom: 0;
       width: 100%;
       min-height: 100%;
       font-family: 'SF Pro Display', 'Segoe UI', Arial, sans-serif;
@@ -31,7 +31,7 @@
     .app {
       width: 100%;
       min-height: 100dvh;
-      padding: 12px 14px 12px;
+      padding: 12px 14px 0;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -79,15 +79,16 @@
       align-items: center;
       justify-content: center;
       gap: 10px;
-      min-height: 42px;
-      padding: 8px 15px;
+      min-height: 34px;
+      padding: 6px 13px;
       border-radius: 999px;
       background: linear-gradient(145deg, #fff, #e6eaf2);
       box-shadow: 8px 8px 18px rgba(0, 0, 0, .16), -7px -7px 18px rgba(255, 255, 255, .9), inset 2px 2px 5px rgba(255, 255, 255, .8), inset -2px -2px 5px rgba(0, 0, 0, .08);
-      font-size: 13px;
+      font-size: 11.5px;
       font-weight: 900;
       letter-spacing: .5px;
-      color: #2c3139
+      color: #2c3139;
+      transition: background .35s ease, color .25s ease, box-shadow .35s ease
     }
 
     .netDot {
@@ -107,9 +108,23 @@
       line-height: 1;
     }
 
+    #netText .mqttOk {
+      color: #006b2f;
+      font-weight: 1000;
+    }
+
+    .statusDock.online {
+      background: linear-gradient(145deg, rgba(235,255,244,.96), rgba(208,255,229,.68));
+      color: #14351f;
+    }
+
     .statusDock.online .netDot {
-      background: #00e676;
+      background: radial-gradient(circle at 30% 25%, #f4fff8 0%, #b8ffd4 35%, #39e979 68%, #00a94f 100%);
       box-shadow: 0 0 0 5px rgba(0, 230, 118, .14), 0 0 22px rgba(0, 230, 118, .95), inset 2px 2px 4px rgba(255, 255, 255, .55), inset -2px -2px 5px rgba(0, 0, 0, .25)
+    }
+
+    .statusDock.fail {
+      color: #5a0000;
     }
 
     .statusDock.fail .netDot {
@@ -155,7 +170,7 @@
       border-radius: 50%;
       background: radial-gradient(circle at 30% 25%, #fff, #bfe6ff 25%, #248fff 58%, #0345a8 100%);
       box-shadow: 0 6px 10px rgba(0, 0, 0, .35), inset 3px 3px 6px rgba(255, 255, 255, .65), inset -4px -4px 7px rgba(0, 0, 0, .3);
-      transition: left .22s ease
+      transition: left .62s cubic-bezier(.2,.9,.2,1)
     }
 
     .switch.joy .knobSwitch {
@@ -166,7 +181,7 @@
       width: 200%;
       height: 100%;
       display: flex;
-      transition: transform .5s cubic-bezier(.2, .9, .25, 1)
+      transition: transform .78s cubic-bezier(.2, .9, .25, 1)
     }
 
     /* .controlStage {
@@ -196,11 +211,11 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 10px
+      gap: 0
     }
 
     .sciTitle {
-      font-size: 13px;
+      font-size: 11.5px;
       font-weight: 900;
       letter-spacing: 1px;
       color: #172334;
@@ -524,7 +539,7 @@
       pointer-events: none;
       background: radial-gradient(circle at 28% 18%, #f7fbff 0 10%, #d8ecff 28%, #3198ff 65%, #064eb8 100%);
       box-shadow: 0 5px 10px rgba(0, 0, 0, .28), inset 4px 4px 8px rgba(255, 255, 255, .55), inset -5px -5px 10px rgba(0, 0, 0, .28);
-      transition: left .24s cubic-bezier(.2, .9, .25, 1)
+      transition: left .72s cubic-bezier(.2, .9, .25, 1)
     }
 
     .topControlRow .switch.joy {
@@ -595,6 +610,26 @@
         background: radial-gradient(circle at 30% 18%, #fff 0 14%, #eef6ff 28%, #d7e5f8 58%, #b7c6dc 100%);
         filter: saturate(1);
         box-shadow: 6px 6px 13px rgba(0, 0, 0, .2), -5px -5px 13px rgba(255, 255, 255, .95), inset 3px 3px 6px rgba(255, 255, 255, .82), inset -4px -5px 8px rgba(0, 0, 0, .13)
+      }
+    }
+
+
+    /* Pulse buttons: blink only, no jumping/up-down movement */
+    .cornerToolBtn.blinkRun {
+      transform: none !important;
+      animation: cornerSoftBlink 360ms linear infinite;
+    }
+
+    @keyframes cornerSoftBlink {
+      0%, 49% {
+        background: radial-gradient(circle at 32% 20%, #fff 0 10%, #8ed5ff 25%, #0077ff 62%, #003d99 100%);
+        filter: saturate(1.22);
+        box-shadow: 6px 6px 13px rgba(0, 0, 0, .2), -5px -5px 13px rgba(255, 255, 255, .95), inset 3px 3px 6px rgba(255, 255, 255, .82), inset -4px -5px 8px rgba(0, 0, 0, .13), 0 0 22px rgba(0, 120, 255, .75);
+      }
+      50%, 100% {
+        background: radial-gradient(circle at 30% 18%, #fff 0 14%, #eef6ff 28%, #d7e5f8 58%, #b7c6dc 100%);
+        filter: saturate(1);
+        box-shadow: 6px 6px 13px rgba(0, 0, 0, .2), -5px -5px 13px rgba(255, 255, 255, .95), inset 3px 3px 6px rgba(255, 255, 255, .82), inset -4px -5px 8px rgba(0, 0, 0, .13);
       }
     }
 
@@ -676,7 +711,7 @@
     .speedBox {
       width: 304px;
       min-height: 96px;
-      padding: 12px 14px 12px;
+      padding: 12px 14px 0;
       border-radius: 34px;
       background: linear-gradient(145deg, #fff, #eee);
       box-shadow: 10px 10px 22px rgba(0, 0, 0, .25), -8px -8px 20px rgba(255, 255, 255, .98), inset 3px 3px 8px rgba(255, 255, 255, .85), inset -4px -4px 10px rgba(0, 0, 0, .08);
@@ -1084,9 +1119,14 @@
       }
 
       .statusDock {
-        font-size: clamp(16px, 1.5vw, 24px);
-        padding: 14px 22px
+        font-size: clamp(12px, 1.2vw, 17px);
+        padding: 10px 18px
       }
+      .footerText {
+        grid-column: 1/-1;
+        align-self: end;
+      }
+
 
       .netDot {
         width: 24px;
@@ -1262,16 +1302,15 @@
     }
 
     .footerText {
-      bottom: 8px;
-      left: 0;
+      margin-top: auto;
       width: 100%;
       text-align: center;
       font-size: 13px;
       font-weight: 800;
       color: #6b7280;
-
+      line-height: 1.15;
+      padding-bottom: 0;
       text-shadow: 0 1px 0 rgba(255, 255, 255, .9);
-
       z-index: 999;
       pointer-events: none;
     }
@@ -1622,7 +1661,6 @@
       <div class="track">
         <div class="panel buttonPanel">
           <div class="controlCard">
-            <div class="sciTitle">Button Control</div>
             <div class="controls" id="buttonControls">
               <button class="cornerToolBtn leftTool pulseHornBtn" aria-label="Pulse Horn"><svg class="toolIcon hornIcon" viewBox="0 0 48 48" aria-hidden="true">
                   <path d="M8 28h8l12 8V12L16 20H8z" fill="none" stroke="currentColor" stroke-width="3"
@@ -1660,7 +1698,6 @@
         </div>
         <div class="panel joyPanel">
           <div class="controlCard">
-            <div class="sciTitle">Joystick Control</div>
             <div class="joyWrap"><button class="cornerToolBtn leftTool pulseHornBtn" aria-label="Pulse Horn"><svg class="toolIcon hornIcon" viewBox="0 0 48 48" aria-hidden="true">
                   <path d="M8 28h8l12 8V12L16 20H8z" fill="none" stroke="currentColor" stroke-width="3"
                     stroke-linejoin="round" />
@@ -1715,7 +1752,11 @@
     mqttClient.on('reconnect', () => setStatus('connecting', 'Connecting cloud link...'));
     mqttClient.on('offline', () => setStatus('fail', 'Offline • link lost'));
     mqttClient.on('error', () => setStatus('fail', 'Connection failed'));
-    function setStatus(type, text) { statusDock.classList.remove('online', 'fail'); if (type === 'online') statusDock.classList.add('online'); if (type === 'fail') statusDock.classList.add('fail'); netText.textContent = text; }
+    function setStatus(type, text) { statusDock.classList.remove('online', 'fail'); if (type === 'online') statusDock.classList.add('online'); if (type === 'fail') statusDock.classList.add('fail'); if (type === 'online') {
+        netText.innerHTML = 'Internet Connected • <span class="mqttOk">MQTT Broker Connected</span>';
+      } else {
+        netText.textContent = text;
+      } }
     function publish(msg) { if (mqttClient.connected) { mqttClient.publish(mqttTopic, msg, { qos: 0, retain: false }); console.log('MQTT:', msg); } }
     function activeCommand() { if (joyActive) return 'J,' + Math.round(joyX) + ',' + Math.round(joyY); if (momentaryCmd) return momentaryCmd; if (latchedCmd) return latchedCmd; return '' }
     function startHeartbeat() { if (heartbeatTimer) clearInterval(heartbeatTimer); heartbeatTimer = setInterval(() => { if (hornActive && !pulseHornOn) publish('H1'); const cmd = activeCommand(); if (cmd) publish(cmd); }, 300) }
