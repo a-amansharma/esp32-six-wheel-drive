@@ -394,7 +394,7 @@ input[type=range]::-webkit-slider-thumb{width:17px;height:17px}
       <button id="hornBtn" class="iconBtn" title="Horn" onpointerdown="hornDown()" onpointerup="hornUp()" onpointercancel="hornUp()"><svg viewBox="0 0 64 64"><path fill="currentColor" d="M9 26h10l15-12v36L19 38H9z"></path><path fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round" d="M44 22c5 5 5 15 0 20M52 14c10 10 10 26 0 36"></path></svg></button>
       <button id="pulseHornBtn" class="pulseMini" onclick="togglePulseHorn()">PULSE</button>
     </div>
-    <div class="titleMid"><h1>ESP32 - 6WD</h1><h3>Draw Path Control - V11</h3></div>
+    <div class="titleMid"><h1>ESP32 - 6WD</h1><h3>Draw Path Control - V09</h3></div>
     <div class="iconCol">
       <button id="lightBtn" class="iconBtn" title="Light" onclick="toggleLight()"><svg viewBox="0 0 64 64"><path fill="currentColor" d="M8 14c18 0 32 8 32 18S26 50 8 50c-4 0-6-2.5-6-6V20c0-3.5 2-6 6-6z"></path><path fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" d="M48 18h10M48 32h12M48 46h10"></path></svg></button>
       <button id="pulseLightBtn" class="pulseMini" onclick="togglePulseLight()">PULSE</button>
