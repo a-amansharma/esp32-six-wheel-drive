@@ -3,17 +3,29 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ESP32-6WD Versions</title>
+<title>ESP32-6WD UI</title>
 <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
 
-<div class="main-title">ESP32-6WD Evolution</div>
+<div class="pageShadow"></div>
 
-<div class="version-list" id="versionList"></div>
+<main class="panel">
+  <div class="panelLight"></div>
 
-<div class="focus-layer" id="focusLayer"></div>
+  <div class="header">
+    <div>
+      <h1>ESP32-6WD</h1>
+      <p>VERSION EVOLUTION</p>
+    </div>
+
+    <div class="robot">
+      <img src="icon.png" alt="ESP32 Icon">
+    </div>
+  </div>
+
+  <div class="list" id="list"></div>
+</main>
 
 <script src="script.js"></script>
 </body>
