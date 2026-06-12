@@ -2,6 +2,9 @@
 
 Short README for the ESP32 6-wheel rover with internet control, joystick/button UI, horn buzzer, headlight toggle, speed control, trim control, and blue LED motion indication.
 
+## Live Link to Control the car 
+https://a-amansharma.github.io/esp32-six-wheel-drive/codes/07-internet-control/Cloud-Internet-Controller.html
+
 ## Features
 
 - Internet-based control using MQTT
