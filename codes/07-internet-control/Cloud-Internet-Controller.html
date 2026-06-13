@@ -2294,6 +2294,625 @@
             }
         }
 
+
+        /* ===== AMAN FINAL LANDSCAPE FIX 2026-06-13 =====
+           Portrait rules stay same. This block only fixes landscape spacing,
+           center buttons, trim/speed size, controller size and overlap. */
+        @media (orientation: landscape) {
+            html,
+            body {
+                width: 100%;
+                height: 100%;
+                overflow: hidden !important;
+            }
+
+            .main {
+                width: 100vw !important;
+                height: 100dvh !important;
+                min-height: 100dvh !important;
+                position: relative !important;
+                display: block !important;
+                overflow: hidden !important;
+                padding: 12px clamp(18px, 4vw, 62px) 12px !important;
+            }
+
+            h1,
+            h3.versionTitle {
+                position: relative !important;
+                z-index: 80 !important;
+                text-align: center !important;
+                margin-left: auto !important;
+                margin-right: auto !important;
+            }
+
+            h1 {
+                margin-top: 0 !important;
+                font-size: clamp(22px, 4.6vw, 58px) !important;
+                line-height: .92 !important;
+            }
+
+            h3.versionTitle {
+                margin-top: 4px !important;
+                font-size: clamp(10px, 1.35vw, 18px) !important;
+                line-height: 1 !important;
+            }
+
+            .statusDock {
+                position: absolute !important;
+                left: 50% !important;
+                top: clamp(52px, 12vh, 104px) !important;
+                transform: translateX(-50%) !important;
+                margin: 0 !important;
+                z-index: 90 !important;
+                white-space: nowrap !important;
+            }
+
+            .modeSwitch {
+                display: none !important;
+            }
+
+            .modeStage {
+                position: absolute !important;
+                left: 50% !important;
+                top: clamp(118px, 27vh, 185px) !important;
+                bottom: clamp(72px, 13vh, 128px) !important;
+                width: min(94vw, 1260px) !important;
+                margin: 0 !important;
+                transform: translateX(-50%) !important;
+                z-index: 20 !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                overflow: visible !important;
+            }
+
+            .track {
+                width: 100% !important;
+                height: 100% !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: space-between !important;
+                gap: 0 !important;
+                transform: none !important;
+                transition: none !important;
+            }
+
+            .panel {
+                width: auto !important;
+                flex: 0 0 auto !important;
+            }
+
+            .buttonPanel {
+                margin-left: clamp(4px, 2.2vw, 44px) !important;
+            }
+
+            .joyPanel {
+                margin-right: clamp(4px, 2.2vw, 44px) !important;
+            }
+
+            .topRow {
+                position: absolute !important;
+                left: 50% !important;
+                top: clamp(126px, 31vh, 230px) !important;
+                width: clamp(70px, 8vw, 110px) !important;
+                max-width: none !important;
+                padding: 0 !important;
+                transform: translateX(-50%) scale(.92) !important;
+                transform-origin: top center !important;
+                z-index: 70 !important;
+                display: flex !important;
+                flex-direction: column !important;
+                align-items: center !important;
+                justify-content: flex-start !important;
+                gap: clamp(8px, 1.2vh, 14px) !important;
+                pointer-events: none !important;
+            }
+
+            .topRow .cornerGroup {
+                pointer-events: auto !important;
+                display: flex !important;
+                flex-direction: column !important;
+                align-items: center !important;
+                gap: 7px !important;
+            }
+
+            .roundBtn {
+                width: clamp(52px, 5.1vw, 74px) !important;
+                height: clamp(52px, 5.1vw, 74px) !important;
+            }
+
+            .smallBtn {
+                width: clamp(48px, 4.9vw, 70px) !important;
+                height: clamp(24px, 2.4vw, 34px) !important;
+            }
+
+            .trimBox {
+                position: absolute !important;
+                left: 50% !important;
+                top: clamp(276px, 57vh, 420px) !important;
+                transform: translateX(-50%) !important;
+                width: clamp(150px, 18vw, 230px) !important;
+                height: clamp(26px, 4vh, 38px) !important;
+                padding: 4px 13px !important;
+                border-radius: 999px !important;
+                z-index: 75 !important;
+            }
+
+            #trimSlider {
+                width: 100% !important;
+                height: 6px !important;
+            }
+
+            #trimSlider::-webkit-slider-thumb {
+                width: clamp(20px, 2.2vw, 30px) !important;
+                height: clamp(20px, 2.2vw, 30px) !important;
+            }
+
+            .speedBox {
+                position: absolute !important;
+                left: 50% !important;
+                bottom: clamp(18px, 4.8vh, 54px) !important;
+                transform: translateX(-50%) !important;
+                width: clamp(300px, 33vw, 520px) !important;
+                min-height: clamp(48px, 7.4vh, 76px) !important;
+                padding: 6px 14px !important;
+                margin: 0 !important;
+                z-index: 78 !important;
+            }
+
+            .speedBox label {
+                font-size: clamp(12px, 1.5vw, 18px) !important;
+                padding: 2px 14px !important;
+                margin-bottom: 4px !important;
+            }
+
+            .speedRow {
+                gap: 9px !important;
+            }
+
+            #speedSlider {
+                width: clamp(210px, 25vw, 400px) !important;
+                height: clamp(6px, .8vw, 9px) !important;
+            }
+
+            #speedSlider::-webkit-slider-thumb {
+                width: clamp(28px, 3vw, 40px) !important;
+                height: clamp(28px, 3vw, 40px) !important;
+            }
+
+            #speedVal {
+                width: clamp(40px, 5vw, 62px) !important;
+                font-size: clamp(14px, 1.8vw, 22px) !important;
+            }
+
+            .footerText {
+                position: absolute !important;
+                left: 0 !important;
+                right: 0 !important;
+                bottom: 2px !important;
+                display: block !important;
+                margin: 0 !important;
+                padding: 0 0 2px !important;
+                font-size: clamp(8px, .95vw, 12px) !important;
+                line-height: 1 !important;
+                z-index: 100 !important;
+            }
+
+            .joyWrap,
+            .joyWrap::before,
+            .joyBase,
+            .knob {
+                overflow: visible !important;
+            }
+
+            .joyWrap::before {
+                z-index: 0 !important;
+            }
+
+            .joyBase {
+                z-index: 2 !important;
+            }
+
+            .knob {
+                z-index: 10 !important;
+            }
+        }
+
+        /* Smartphone landscape: bigger controllers, compact center buttons, no overlap */
+        @media (orientation: landscape) and (max-height: 520px) {
+            .main {
+                padding: 10px 16px 13px !important;
+            }
+
+            h1 {
+                font-size: clamp(22px, 7.2vh, 32px) !important;
+                line-height: .88 !important;
+            }
+
+            h3.versionTitle {
+                font-size: clamp(9px, 3.2vh, 13px) !important;
+                margin-top: 2px !important;
+            }
+
+            .statusDock {
+                top: clamp(46px, 14vh, 58px) !important;
+                min-height: 22px !important;
+                padding: 3px 10px !important;
+                font-size: clamp(8px, 2.8vh, 10px) !important;
+                gap: 6px !important;
+            }
+
+            .netDot {
+                width: 14px !important;
+                height: 14px !important;
+            }
+
+            .modeStage {
+                top: clamp(86px, 25vh, 112px) !important;
+                bottom: clamp(58px, 17vh, 76px) !important;
+                width: min(96vw, 870px) !important;
+            }
+
+            .controls,
+            .joyWrap {
+                width: clamp(210px, 63vh, 258px) !important;
+                height: clamp(210px, 63vh, 258px) !important;
+            }
+
+            .buttonPanel {
+                margin-left: clamp(2px, 2vw, 26px) !important;
+            }
+
+            .joyPanel {
+                margin-right: clamp(2px, 2vw, 26px) !important;
+            }
+
+            .controls::before {
+                width: 77% !important;
+                height: 77% !important;
+                left: 11.5% !important;
+                top: 11.5% !important;
+            }
+
+            .joyWrap::before {
+                width: 77% !important;
+                height: 77% !important;
+            }
+
+            .btn {
+                width: 25% !important;
+                height: 25% !important;
+            }
+
+            .corner {
+                width: 15.5% !important;
+                height: 15.5% !important;
+                font-size: clamp(8px, 2.4vh, 12px) !important;
+            }
+
+            .stop {
+                width: 33% !important;
+                height: 33% !important;
+                left: 33.5% !important;
+                top: 33.5% !important;
+            }
+
+            .stop::before {
+                width: 30% !important;
+                height: 30% !important;
+            }
+
+            .forward { left: 37.5% !important; top: 5% !important; }
+            .back { left: 37.5% !important; top: 70% !important; }
+            .left { left: 5% !important; top: 37.5% !important; }
+            .right { right: 5% !important; top: 37.5% !important; }
+            .fl { left: 20% !important; top: 20% !important; }
+            .fr { right: 20% !important; top: 20% !important; }
+            .bl { left: 20% !important; bottom: 20% !important; }
+            .br { right: 20% !important; bottom: 20% !important; }
+
+            .arrow.up,
+            .arrow.down {
+                border-left-width: 11px !important;
+                border-right-width: 11px !important;
+            }
+
+            .arrow.up { border-bottom-width: 18px !important; }
+            .arrow.down { border-top-width: 18px !important; }
+
+            .arrow.leftA,
+            .arrow.rightA {
+                border-top-width: 11px !important;
+                border-bottom-width: 11px !important;
+            }
+
+            .arrow.leftA { border-right-width: 18px !important; }
+            .arrow.rightA { border-left-width: 18px !important; }
+
+            .joyBase {
+                width: 73% !important;
+                height: 73% !important;
+            }
+
+            .joyBase::before {
+                width: 70% !important;
+                left: 15% !important;
+                top: calc(50% - 2px) !important;
+                height: 4px !important;
+            }
+
+            .joyBase::after {
+                height: 70% !important;
+                left: calc(50% - 2px) !important;
+                top: 15% !important;
+                width: 4px !important;
+            }
+
+            .knob {
+                width: 47% !important;
+                height: 47% !important;
+                left: 26.5% !important;
+                top: 26.5% !important;
+            }
+
+            .joyText {
+                top: 5.8% !important;
+                width: 74% !important;
+                height: 26% !important;
+            }
+
+            .joyText text {
+                font-size: 7px !important;
+                letter-spacing: .9px !important;
+            }
+
+            .topRow {
+                top: clamp(94px, 27vh, 120px) !important;
+                transform: translateX(-50%) scale(.72) !important;
+                gap: 8px !important;
+            }
+
+            .topRow .cornerGroup {
+                gap: 6px !important;
+            }
+
+            .trimBox {
+                top: clamp(244px, 69vh, 286px) !important;
+                width: clamp(130px, 20vw, 170px) !important;
+                height: 25px !important;
+                padding: 3px 11px !important;
+            }
+
+            #trimSlider {
+                height: 5px !important;
+            }
+
+            #trimSlider::-webkit-slider-thumb {
+                width: 20px !important;
+                height: 20px !important;
+            }
+
+            .speedBox {
+                bottom: 13px !important;
+                width: clamp(275px, 42vw, 360px) !important;
+                min-height: 42px !important;
+                padding: 4px 11px !important;
+            }
+
+            .speedBox label {
+                font-size: 12px !important;
+                padding: 1px 12px !important;
+                margin-bottom: 2px !important;
+            }
+
+            #speedSlider {
+                width: clamp(190px, 30vw, 270px) !important;
+                height: 6px !important;
+            }
+
+            #speedSlider::-webkit-slider-thumb {
+                width: 26px !important;
+                height: 26px !important;
+            }
+
+            #speedVal {
+                font-size: 13px !important;
+                width: 40px !important;
+            }
+
+            .footerText {
+                font-size: 8px !important;
+                bottom: 1px !important;
+            }
+        }
+
+        /* Very short landscape phones */
+        @media (orientation: landscape) and (max-height: 390px) {
+            .main {
+                padding-top: 8px !important;
+            }
+
+            h1 {
+                font-size: clamp(20px, 7vh, 27px) !important;
+            }
+
+            h3.versionTitle {
+                font-size: clamp(8px, 3vh, 11px) !important;
+            }
+
+            .statusDock {
+                top: 43px !important;
+                transform: translateX(-50%) scale(.94) !important;
+            }
+
+            .modeStage {
+                top: 78px !important;
+                bottom: 50px !important;
+            }
+
+            .controls,
+            .joyWrap {
+                width: clamp(190px, 62vh, 226px) !important;
+                height: clamp(190px, 62vh, 226px) !important;
+            }
+
+            .topRow {
+                top: 88px !important;
+                transform: translateX(-50%) scale(.62) !important;
+            }
+
+            .trimBox {
+                top: 226px !important;
+                transform: translateX(-50%) scale(.86) !important;
+            }
+
+            .speedBox {
+                bottom: 12px !important;
+                transform: translateX(-50%) scale(.92) !important;
+            }
+        }
+
+        /* Laptop / desktop landscape: bigger text, bigger controllers, clean margins */
+        @media (orientation: landscape) and (min-width: 900px) and (min-height: 521px) {
+            .main {
+                padding: 14px clamp(52px, 5vw, 96px) 16px !important;
+            }
+
+            h1 {
+                font-size: clamp(42px, 4vw, 62px) !important;
+            }
+
+            h3.versionTitle {
+                font-size: clamp(16px, 1.35vw, 21px) !important;
+                margin-top: 6px !important;
+            }
+
+            .statusDock {
+                top: clamp(92px, 14vh, 126px) !important;
+                padding: 8px 18px !important;
+                font-size: clamp(13px, 1.05vw, 16px) !important;
+            }
+
+            .netDot {
+                width: 23px !important;
+                height: 23px !important;
+            }
+
+            .modeStage {
+                top: clamp(170px, 25vh, 230px) !important;
+                bottom: clamp(116px, 16vh, 158px) !important;
+                width: min(90vw, 1360px) !important;
+            }
+
+            .controls,
+            .joyWrap {
+                width: clamp(340px, 25vw, 430px) !important;
+                height: clamp(340px, 25vw, 430px) !important;
+            }
+
+            .controls::before {
+                width: 77.5% !important;
+                height: 77.5% !important;
+                left: 11.25% !important;
+                top: 11.25% !important;
+            }
+
+            .joyWrap::before {
+                width: 77.5% !important;
+                height: 77.5% !important;
+            }
+
+            .btn {
+                width: 23.5% !important;
+                height: 23.5% !important;
+            }
+
+            .corner {
+                width: 15.5% !important;
+                height: 15.5% !important;
+                font-size: clamp(12px, 1vw, 16px) !important;
+            }
+
+            .stop {
+                width: 32% !important;
+                height: 32% !important;
+                left: 34% !important;
+                top: 34% !important;
+            }
+
+            .forward { left: 38.25% !important; top: 5% !important; }
+            .back { left: 38.25% !important; top: 71.5% !important; }
+            .left { left: 5% !important; top: 38.25% !important; }
+            .right { right: 5% !important; top: 38.25% !important; }
+            .fl { left: 20% !important; top: 20% !important; }
+            .fr { right: 20% !important; top: 20% !important; }
+            .bl { left: 20% !important; bottom: 20% !important; }
+            .br { right: 20% !important; bottom: 20% !important; }
+
+            .joyBase {
+                width: 73% !important;
+                height: 73% !important;
+            }
+
+            .joyBase::before {
+                width: 70% !important;
+                left: 15% !important;
+                top: calc(50% - 2.5px) !important;
+            }
+
+            .joyBase::after {
+                height: 70% !important;
+                left: calc(50% - 2.5px) !important;
+                top: 15% !important;
+            }
+
+            .knob {
+                width: 47% !important;
+                height: 47% !important;
+                left: 26.5% !important;
+                top: 26.5% !important;
+            }
+
+            .joyText {
+                top: 6% !important;
+                width: 74% !important;
+                height: 25% !important;
+            }
+
+            .joyText text {
+                font-size: 8.8px !important;
+            }
+
+            .topRow {
+                top: clamp(196px, 30vh, 286px) !important;
+                transform: translateX(-50%) scale(1) !important;
+                gap: 12px !important;
+            }
+
+            .trimBox {
+                top: clamp(408px, 61vh, 520px) !important;
+                width: clamp(190px, 17vw, 260px) !important;
+                height: 36px !important;
+                padding: 5px 16px !important;
+            }
+
+            #trimSlider::-webkit-slider-thumb {
+                width: 28px !important;
+                height: 28px !important;
+            }
+
+            .speedBox {
+                bottom: clamp(28px, 5vh, 58px) !important;
+                width: clamp(420px, 34vw, 560px) !important;
+                min-height: clamp(64px, 8vh, 86px) !important;
+            }
+
+            #speedSlider {
+                width: clamp(300px, 26vw, 430px) !important;
+            }
+        }
+
+
     </style>
 </head>
 
