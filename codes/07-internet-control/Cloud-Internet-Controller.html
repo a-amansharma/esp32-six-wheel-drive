@@ -428,6 +428,7 @@
       position: absolute;
       left: 53px;
       top: 53px;
+      z-index: 1000;
       background: radial-gradient(circle at 30% 22%, #fff, #bfe6ff 20%, #268fff 48%, #064bbd 78%, #021c56 100%);
       box-shadow: 0 22px 22px rgba(0, 0, 0, .35), inset 8px 8px 14px rgba(255, 255, 255, .55), inset -10px -12px 18px rgba(0, 0, 0, .42), 0 0 24px rgba(0, 120, 255, .4);
       z-index: 5
@@ -455,7 +456,7 @@
       inset: 0;
       width: 100%;
       height: 104%;
-      z-index: 3;
+      z-index: 1;
       pointer-events: none;
       overflow: visible
     }
@@ -1794,7 +1795,61 @@
       box.addEventListener('lostpointercapture', () => { dragging = false });
       box.classList.toggle('joyMode', mode === 'joystick');
     }
-    function bindButtons() { document.querySelectorAll('.btn').forEach(btn => { const cmd = btn.dataset.cmd; btn.addEventListener('pointerdown', e => { e.preventDefault(); btn.setPointerCapture(e.pointerId); if (cmd === 'S') { stopAll(); btn.classList.add('active'); return } if (cmd === 'F' || cmd === 'B') { momentaryCmd = ''; if (latchedCmd === cmd) { clearLatch(); publish('S') } else { clearLatch(); latchedCmd = cmd; btn.classList.add('latched'); publish(cmd) } return } clearLatch(); momentaryCmd = cmd; btn.classList.add('active'); publish(cmd) }); const up = () => { btn.classList.remove('active'); if (cmd !== 'F' && cmd !== 'B' && cmd !== 'S') { momentaryCmd = ''; publish(latchedCmd || 'S') } if (cmd === 'S') btn.classList.remove('active') }; btn.addEventListener('pointerup', up); btn.addEventListener('pointercancel', up); btn.addEventListener('lostpointercapture', up) }) }
+    function bindButtons() {
+      document.querySelectorAll('.btn').forEach(btn => {
+        const cmd = btn.dataset.cmd;
+
+        btn.addEventListener('pointerdown', e => {
+          e.preventDefault();
+          btn.setPointerCapture(e.pointerId);
+
+          if (cmd === 'S') {
+            stopAll();
+            btn.classList.add('active');
+            return;
+          }
+
+          // F/B are lock buttons.
+          // Press once = lock, press same again = unlock, STOP = unlock.
+          if (cmd === 'F' || cmd === 'B') {
+            momentaryCmd = '';
+
+            if (latchedCmd === cmd) {
+              clearLatch();
+              publish('S');
+            } else {
+              clearLatch();
+              latchedCmd = cmd;
+              btn.classList.add('latched');
+              publish(cmd);
+            }
+            return;
+          }
+
+          // L/R/corner buttons are momentary only.
+          // IMPORTANT: do NOT clear latchedCmd here.
+          // So if Forward/Backward is locked, it will continue after left/right release.
+          momentaryCmd = cmd;
+          btn.classList.add('active');
+          publish(cmd);
+        });
+
+        const up = () => {
+          btn.classList.remove('active');
+
+          if (cmd !== 'F' && cmd !== 'B' && cmd !== 'S') {
+            momentaryCmd = '';
+            publish(latchedCmd || 'S');
+          }
+
+          if (cmd === 'S') btn.classList.remove('active');
+        };
+
+        btn.addEventListener('pointerup', up);
+        btn.addEventListener('pointercancel', up);
+        btn.addEventListener('lostpointercapture', up);
+      });
+    }
     function updateMaxMove() { maxMove = Math.min(joyBase.clientWidth, joyBase.clientHeight) * 0.27 }
     function sendJoy(x, y, force = false) { joyX = x; joyY = y; const now = Date.now(); if (!force && now - lastJoy < 45) return; lastJoy = now; publish('J,' + Math.round(x) + ',' + Math.round(y)) }
     function moveKnob(clientX, clientY) { updateMaxMove(); clearLatch(); momentaryCmd = ''; const rect = joyBase.getBoundingClientRect(), cx = rect.left + rect.width / 2, cy = rect.top + rect.height / 2; let dx = clientX - cx, dy = clientY - cy; const dist = Math.sqrt(dx * dx + dy * dy); if (dist > maxMove) { dx = dx / dist * maxMove; dy = dy / dist * maxMove } knob.style.transform = 'translate(' + dx + 'px,' + dy + 'px)'; knob.classList.add('active'); sendJoy((dx / maxMove) * 100, (-dy / maxMove) * 100) }
