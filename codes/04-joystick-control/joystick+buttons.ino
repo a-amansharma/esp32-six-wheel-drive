@@ -20,6 +20,8 @@ WebServer server(80);
 #define RIGHT_LPWM  14
 
 #define BLUE_LED 2
+#define HORN_PIN 13
+#define HEADLIGHT_PIN 23
 
 int speedValue = 150;
 int trimValue = 0;
@@ -42,6 +44,14 @@ char steerMode = 'N';   // N, L, R
 char activeControlMode = 'B';  // B = buttons, J = joystick
 int lastJoyX = 0;
 int lastJoyY = 0;
+
+bool hornOn = false;
+bool hornPulseOn = false;
+bool headlightOn = false;
+bool lightPulseOn = false;
+bool pulseOutputState = false;
+unsigned long lastPulseTime = 0;
+const int pulseInterval = 166;   // about 3 Hz ON/OFF blink
 
 void setupPWM() {
   ledcAttach(LEFT_RPWM, 1000, 8);
@@ -224,7 +234,10 @@ void updateMotorsSmooth() {
   writeLeftMotor(currentLeftSpeed);
   writeRightMotor(currentRightSpeed);
 
-  if (currentLeftSpeed != 0 || currentRightSpeed != 0 || targetLeftSpeed != 0 || targetRightSpeed != 0) {
+  bool motionActive = (currentLeftSpeed != 0 || currentRightSpeed != 0 || targetLeftSpeed != 0 || targetRightSpeed != 0);
+  bool hornLedActive = hornOn || (hornPulseOn && pulseOutputState);
+
+  if (motionActive || hornLedActive) {
     digitalWrite(BLUE_LED, HIGH);
   } else {
     digitalWrite(BLUE_LED, LOW);
@@ -1215,7 +1228,7 @@ void handleRoot() {
 }
 
 void handleButtonsPage() {
-  server.send(200, "text/html", buttonsPage);
+  server.send(200, "text/html", mainPage);
 }
 
 void handleJoystickPage() {
@@ -1307,6 +1320,108 @@ void handleTrim() {
   server.send(200, "text/plain", "OK");
 }
 
+void updateHornLightOutputs() {
+  if (hornPulseOn) {
+    digitalWrite(HORN_PIN, pulseOutputState ? HIGH : LOW);
+  } else {
+    digitalWrite(HORN_PIN, hornOn ? HIGH : LOW);
+  }
+
+  if (lightPulseOn) {
+    digitalWrite(HEADLIGHT_PIN, pulseOutputState ? HIGH : LOW);
+  } else {
+    digitalWrite(HEADLIGHT_PIN, headlightOn ? HIGH : LOW);
+  }
+}
+
+void updatePulseTiming() {
+  if (!hornPulseOn && !lightPulseOn) {
+    pulseOutputState = false;
+    updateHornLightOutputs();
+    return;
+  }
+
+  if (millis() - lastPulseTime >= pulseInterval) {
+    lastPulseTime = millis();
+    pulseOutputState = !pulseOutputState;
+    updateHornLightOutputs();
+  }
+}
+
+void handleHorn() {
+  if (server.hasArg("state")) {
+    String state = server.arg("state");
+    hornOn = (state == "on");
+  } else {
+    hornOn = !hornOn;
+  }
+
+  if (hornOn) {
+    hornPulseOn = false;
+    pulseOutputState = false;
+  }
+
+  updateHornLightOutputs();
+  server.send(200, "text/plain", "OK");
+}
+
+void handleHornPulse() {
+  if (server.hasArg("state")) {
+    String state = server.arg("state");
+    hornPulseOn = (state == "on");
+  } else {
+    hornPulseOn = !hornPulseOn;
+  }
+
+  if (hornPulseOn) {
+    hornOn = false;
+    pulseOutputState = true;
+    lastPulseTime = millis();
+  } else {
+    pulseOutputState = false;
+  }
+
+  updateHornLightOutputs();
+  server.send(200, "text/plain", "OK");
+}
+
+void handleHeadlight() {
+  if (server.hasArg("state")) {
+    String state = server.arg("state");
+    headlightOn = (state == "on");
+  } else {
+    headlightOn = !headlightOn;
+  }
+
+  if (headlightOn) {
+    lightPulseOn = false;
+    pulseOutputState = false;
+  }
+
+  updateHornLightOutputs();
+  server.send(200, "text/plain", "OK");
+}
+
+void handleLightPulse() {
+  if (server.hasArg("state")) {
+    String state = server.arg("state");
+    lightPulseOn = (state == "on");
+  } else {
+    lightPulseOn = !lightPulseOn;
+  }
+
+  if (lightPulseOn) {
+    headlightOn = false;
+    pulseOutputState = true;
+    lastPulseTime = millis();
+  } else {
+    pulseOutputState = false;
+  }
+
+  updateHornLightOutputs();
+  server.send(200, "text/plain", "OK");
+}
+
 void setup() {
   Serial.begin(115200);
 
@@ -1315,6 +1430,11 @@ void setup() {
   pinMode(RIGHT_L_EN, OUTPUT);
   pinMode(RIGHT_R_EN, OUTPUT);
   pinMode(BLUE_LED, OUTPUT);
+  pinMode(HORN_PIN, OUTPUT);
+  pinMode(HEADLIGHT_PIN, OUTPUT);
+
+  digitalWrite(HORN_PIN, LOW);
+  digitalWrite(HEADLIGHT_PIN, LOW);
 
   setupPWM();
   enableDrivers();
@@ -1331,11 +1451,16 @@ void setup() {
   server.on("/joy", handleJoy);
   server.on("/speed", handleSpeed);
   server.on("/trim", handleTrim);
+  server.on("/horn", handleHorn);
+  server.on("/hornpulse", handleHornPulse);
+  server.on("/headlight", handleHeadlight);
+  server.on("/lightpulse", handleLightPulse);
 
   server.begin();
 }
 
 void loop() {
   server.handleClient();
+  updatePulseTiming();
   updateMotorsSmooth();
 }
