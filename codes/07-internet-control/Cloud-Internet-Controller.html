@@ -2,2089 +2,2223 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport"
-        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>ESP32-6WD V7 Internet Cloud Control</title>
-    <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
-    <style>
-        * {
-            user-select: none;
-            -webkit-user-select: none;
-            -webkit-touch-callout: none;
-            -webkit-tap-highlight-color: transparent;
-            box-sizing: border-box;
-        }
-
-        html,
-        body {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            min-height: 100%;
-            overflow-x: hidden;
-            overflow-y: auto;
-            background:
-                radial-gradient(circle at 18% 10%, rgba(255, 244, 197, .70), transparent 28%),
-                radial-gradient(circle at 86% 18%, rgba(189, 229, 255, .72), transparent 30%),
-                radial-gradient(circle at 50% 88%, rgba(255, 207, 181, .52), transparent 34%),
-                linear-gradient(145deg, #f7fbff, #d8e7ee 55%, #d7dde1);
-            font-family: 'SF Pro Display', 'Avenir Next', 'Segoe UI', Roboto, Arial, sans-serif;
-            overscroll-behavior: contain;
-            color: #101014;
-        }
-
-        .main {
-            width: 100vw;
-            min-height: 100dvh;
-            padding: 12px 12px 0;
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        h1 {
-            margin: 0;
-            font-size: 31px;
-            font-weight: 950;
-            letter-spacing: .8px;
-            color: #1f2b3d;
-            font-family: 'Avenir Next', 'SF Pro Display', 'Segoe UI', Arial, sans-serif;
-            text-shadow: 0 1px 0 #fff, 0 5px 13px rgba(52, 72, 86, .22);
-        }
-
-        h3 {
-            margin: 2px 0 0;
-            font-size: 14px;
-            font-weight: 800;
-            color: #4f5868;
-            letter-spacing: 0.5px;
-            text-shadow: 0 1px 0 #fff;
-        }
-
-        .versionTitle {
-            margin-top: 2px;
-            font-size: 14px;
-            font-weight: 900;
-            letter-spacing: .7px;
-            color: #4f5868;
-        }
-
-        .modeTitleText { display: none; }
-
-        .statusDock {
-            margin-top: 8px;
-            display: flex;
-            flex-direction: row;
-            flex-wrap: nowrap;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            min-height: 30px;
-            padding: 5px 11px;
-            border-radius: 999px;
-            background: linear-gradient(145deg, #ffffff, #e1e7ea);
-            box-shadow:
-                8px 9px 17px rgba(48, 58, 64, .23),
-                -6px -6px 14px rgba(255, 255, 255, .9),
-                inset 2px 2px 5px rgba(255, 255, 255, .9),
-                inset -3px -3px 7px rgba(70, 84, 92, .10);
-            font-size: 11.5px;
-            font-weight: 900;
-            letter-spacing: .5px;
-            color: #2c3139;
-            z-index: 12;
-            transition: background .35s ease, color .25s ease, box-shadow .35s ease;
-        }
-
-        .netDot {
-            width: 20px;
-            height: 20px;
-            flex: 0 0 auto;
-            border-radius: 50%;
-            background: #ff2a2a;
-            box-shadow: 0 0 0 5px rgba(255, 42, 42, .12), 0 0 18px rgba(255, 0, 0, .8), inset 2px 2px 4px rgba(255, 255, 255, .5), inset -2px -2px 5px rgba(0, 0, 0, .25);
-        }
-
-        #netText {
-            display: inline-block;
-            white-space: nowrap;
-            line-height: 1;
-        }
-
-        #netText .mqttOk {
-            color: #006b2f;
-            font-weight: 1000;
-        }
-
-        .statusDock.online {
-            background: linear-gradient(145deg, rgba(235, 255, 244, .96), rgba(208, 255, 229, .68));
-            color: #14351f;
-        }
-
-        .statusDock.online .netDot {
-            background: radial-gradient(circle at 30% 25%, #f4fff8 0%, #b8ffd4 35%, #39e979 68%, #00a94f 100%);
-            box-shadow: 0 0 0 5px rgba(0, 230, 118, .14), 0 0 22px rgba(0, 230, 118, .95), inset 2px 2px 4px rgba(255, 255, 255, .55), inset -2px -2px 5px rgba(0, 0, 0, .25);
-        }
-
-        .statusDock.fail {
-            color: #5a0000;
-        }
-
-        .statusDock.fail .netDot {
-            background: #5a0000;
-            box-shadow: 0 0 0 5px rgba(80, 0, 0, .18), 0 0 18px rgba(90, 0, 0, .95), inset 2px 2px 4px rgba(255, 255, 255, .2), inset -2px -2px 5px rgba(0, 0, 0, .45);
-        }
-
-        .roundBtn,
-        .smallBtn,
-        .btn,
-        .modeBtn {
-            border: none;
-            outline: none;
-            cursor: pointer;
-            position: relative;
-            overflow: hidden;
-            color: #5d6678;
-            background:
-                radial-gradient(circle at 30% 22%, #ffffff 0 23%, #f7fafb 42%, #e4e9eb 72%, #cfd8dc 100%);
-            box-shadow:
-                12px 14px 22px rgba(48, 58, 64, .30),
-                -8px -8px 18px rgba(255, 255, 255, .85),
-                inset 2px 2px 4px rgba(255, 255, 255, .95),
-                inset -4px -5px 8px rgba(90, 105, 112, .12);
-            transition: transform .12s ease, box-shadow .12s ease, background .18s ease, color .18s ease, filter .12s ease;
-        }
-
-        .roundBtn::before,
-        .smallBtn::before,
-        .btn::before,
-        .modeBtn::before {
-            content: "";
-            position: absolute;
-            left: 17%;
-            top: 9%;
-            width: 58%;
-            height: 34%;
-            border-radius: 50%;
-            background: linear-gradient(180deg, rgba(255, 255, 255, .95), rgba(255, 255, 255, .12));
-            transform: rotate(-18deg);
-            pointer-events: none;
-        }
-
-        .roundBtn::after,
-        .smallBtn::after,
-        .btn::after,
-        .modeBtn::after {
-            content: "";
-            position: absolute;
-            inset: 1px;
-            border-radius: inherit;
-            border: 1px solid rgba(255, 255, 255, .82);
-            pointer-events: none;
-        }
-
-        .roundBtn:active,
-        .smallBtn:active,
-        .btn:active,
-        .btn.active,
-        .modeBtn:active,
-        .modeBtn.active {
-            transform: translateY(7px) scale(.95);
-            filter: saturate(1.15) brightness(1.03);
-            box-shadow:
-                4px 5px 10px rgba(48, 58, 64, .26),
-                -3px -3px 9px rgba(255, 255, 255, .7),
-                inset 7px 8px 16px rgba(70, 85, 94, .23),
-                inset -5px -5px 12px rgba(255, 255, 255, .78);
-        }
-
-        .topRow {
-            position: absolute;
-            top: 64px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 100%;
-            max-width: 410px;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            padding: 0 12px;
-            pointer-events: none;
-            z-index: 10;
-        }
-
-        .topRow .cornerGroup {
-            pointer-events: auto;
-        }
-
-        .cornerGroup {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 7px;
-        }
-
-        .cornerGroup.right {
-            align-items: center;
-        }
-
-        .roundBtn {
-            width: 58px;
-            height: 58px;
-            border-radius: 50%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 3px;
-        }
-
-        .roundBtn svg {
-            width: 25px;
-            height: 25px;
-            z-index: 2;
-            position: relative;
-            filter: drop-shadow(0 2px 2px rgba(0, 0, 0, .15));
-        }
-
-        #hornButton svg {
-            color: #f5a623;
-        }
-
-        #lightButton svg {
-            color: #36a8ff;
-        }
-
-        .roundBtn span {
-            font-size: 8px;
-            font-weight: 900;
-            letter-spacing: .8px;
-            z-index: 2;
-            position: relative;
-            text-transform: uppercase;
-        }
-
-        .roundBtn .ledGlow {
-            position: absolute;
-            inset: 0;
-            border-radius: 50%;
-            opacity: 0;
-            transition: opacity .2s;
-            pointer-events: none;
-        }
-
-        .roundBtn.active,
-        .roundBtn.lightOn {
-            color: #5b4700;
-            background: radial-gradient(circle at 30% 22%, #fffdf4 0 18%, #fff2a8 42%, #ffc23a 72%, #e99a00 100%);
-            box-shadow:
-                0 0 0 3px rgba(255, 197, 40, .34),
-                0 0 24px rgba(255, 184, 0, .70),
-                4px 5px 10px rgba(48, 58, 64, .22),
-                inset 7px 8px 15px rgba(92, 68, 0, .18),
-                inset -5px -5px 12px rgba(255, 255, 255, .55);
-            transform: translateY(5px) scale(.96);
-        }
-
-        .roundBtn.active .ledGlow,
-        .roundBtn.lightOn .ledGlow {
-            background: radial-gradient(circle at 50% 55%, rgba(255, 210, 40, .52), transparent 66%);
-            opacity: 1;
-        }
-
-        .smallBtn {
-            width: 48px;
-            height: 25px;
-            border-radius: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 3px;
-            font-size: 8px;
-            font-weight: 900;
-            letter-spacing: .6px;
-            text-transform: uppercase;
-        }
-
-        .smallBtn svg {
-            width: 12px;
-            height: 12px;
-            z-index: 2;
-            position: relative;
-        }
-
-        #hornPulseBtn svg {
-            color: #ff9f1c;
-        }
-
-        #lightPulseBtn svg {
-            color: #13b8ff;
-        }
-
-        .smallBtn.blinkRun {
-            color: #5b4700;
-            background: radial-gradient(circle at 30% 22%, #fffdf4 0 18%, #fff2a8 42%, #ffc23a 72%, #e99a00 100%);
-            box-shadow:
-                0 0 0 2px rgba(255, 197, 40, .36),
-                0 0 16px rgba(255, 184, 0, .70),
-                2px 3px 8px rgba(48, 58, 64, .22),
-                inset 5px 5px 11px rgba(92, 68, 0, .18),
-                inset -4px -4px 9px rgba(255, 255, 255, .55);
-            animation: pulseSkyBlink .333s infinite;
-        }
-
-        @keyframes pulseSkyBlink {
-
-            0%,
-            100% {
-                opacity: 1;
-                filter: brightness(1);
-            }
-
-            50% {
-                opacity: .46;
-                filter: brightness(1.18);
-            }
-        }
-
-        .trimBox {
-            margin-top: 8px;
-            width: 200px;
-            height: 30px;
-            padding: 5px 12px;
-            border-radius: 22px;
-            background: linear-gradient(145deg, #ffffff, #e1e7ea);
-            box-shadow:
-                8px 9px 17px rgba(48, 58, 64, .23),
-                -6px -6px 14px rgba(255, 255, 255, .9),
-                inset 2px 2px 5px rgba(255, 255, 255, .9),
-                inset -3px -3px 7px rgba(70, 84, 92, .10);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        #trimSlider {
-            width: 168px;
-            height: 6px;
-            appearance: none;
-            border-radius: 20px;
-            background: linear-gradient(90deg, #d5dce0 0%, #d5dce0 50%, #4f5868 50%, #4f5868 50%, #d5dce0 50%, #d5dce0 100%);
-            box-shadow: inset 2px 2px 5px rgba(0, 0, 0, .20), inset -2px -2px 5px rgba(255, 255, 255, .95);
-        }
-
-        #trimSlider::-webkit-slider-thumb {
-            appearance: none;
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            background: radial-gradient(circle at 30% 25%, #fff, #eef3f5 35%, #8b98a3 76%, #56616b);
-            box-shadow: 0 6px 10px rgba(0, 0, 0, .30), inset 3px 3px 6px rgba(255, 255, 255, .70), inset -3px -3px 6px rgba(0, 0, 0, .22);
-        }
-
-        .modeSwitch {
-            margin-top: 8px;
-            width: 245px;
-            height: 52px;
-            padding: 7px;
-            border-radius: 34px;
-            display: flex;
-            gap: 8px;
-            position: relative;
-            background:
-                radial-gradient(circle at 25% 18%, rgba(255, 255, 255, .95), transparent 45%),
-                linear-gradient(145deg, #fff9e7, #dceeff 55%, #e8e3ff);
-            box-shadow:
-                10px 11px 20px rgba(48, 58, 64, .24),
-                -7px -7px 16px rgba(255, 255, 255, .88),
-                inset 4px 4px 10px rgba(255, 255, 255, .82),
-                inset -5px -5px 12px rgba(70, 84, 92, .12);
-        }
-
-        .modeSwitch::before {
-            content: "";
-            position: absolute;
-            width: calc(50% - 10px);
-            height: 38px;
-            left: 7px;
-            top: 7px;
-            border-radius: 24px;
-            background:
-                radial-gradient(circle at 28% 20%, #ffffff 0 18%, #eaf7ff 42%, #9ed9ff 74%, #55aeea 100%);
-            box-shadow:
-                6px 7px 13px rgba(55, 76, 90, .26),
-                -4px -4px 9px rgba(255, 255, 255, .70),
-                inset 3px 3px 6px rgba(255, 255, 255, .92),
-                inset -5px -5px 10px rgba(47, 105, 139, .18),
-                0 0 18px rgba(98, 185, 255, .38);
-            transition: transform .38s cubic-bezier(.2, .9, .22, 1);
-            z-index: 0;
-        }
-
-        .modeSwitch.joySelected::before {
-            transform: translateX(calc(100% + 6px));
-        }
-
-        .modeBtn {
-            flex: 1;
-            border-radius: 26px;
-            height: 38px;
-            font-size: 10px;
-            font-weight: 950;
-            letter-spacing: .7px;
-            text-transform: uppercase;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 7px;
-            background: transparent;
-            box-shadow: none;
-            color: #697489;
-            z-index: 1;
-        }
-
-        .modeBtn::before,
-        .modeBtn::after {
-            display: none;
-        }
-
-        .modeBtn:active,
-        .modeBtn.active {
-            transform: none;
-            box-shadow: none;
-            filter: none;
-            color: #203047;
-        }
-
-        .modeBtn svg {
-            width: 18px;
-            height: 18px;
-            z-index: 2;
-            position: relative;
-            transition: color .25s ease;
-        }
-
-        .modeBtn span {
-            z-index: 2;
-            position: relative;
-        }
-
-        #buttonModeBtn svg {
-            color: #ff9f1c;
-        }
-
-        #joyModeBtn svg {
-            color: #22a7f0;
-        }
-
-        .modeStage {
-            margin-top: 14px;
-            position: relative;
-            isolation: isolate;
-            touch-action: none;
-            width: 330px;
-        }
-
-        .track {
-            width: 200%;
-            display: flex;
-            transition: transform .38s cubic-bezier(.2, .9, .25, 1);
-        }
-
-        .modeStage.joystickMode .track {
-            transform: translateX(-50%);
-        }
-
-        .panel {
-            width: 50%;
-            flex: 0 0 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .controls {
-            position: relative;
-            width: 285px;
-            height: 285px;
-            border-radius: 50%;
-            background: radial-gradient(circle at 35% 25%, rgba(255, 255, 255, .97), rgba(241, 246, 248, .90) 30%, rgba(199, 211, 216, .50) 62%, rgba(88, 100, 106, .18) 100%), linear-gradient(145deg, #ffffff, #d4dde1);
-            box-shadow: 18px 20px 35px rgba(48, 58, 64, .32), -12px -12px 28px rgba(255, 255, 255, .86), inset 8px 8px 18px rgba(255, 255, 255, .83), inset -12px -12px 25px rgba(70, 84, 92, .14);
-        }
-
-        .controls::before {
-            content: "";
-            position: absolute;
-            width: 220px;
-            height: 220px;
-            left: 32px;
-            top: 32px;
-            border-radius: 50%;
-            background: radial-gradient(circle at 50% 50%, rgba(245, 248, 249, .70), rgba(159, 174, 183, .22) 62%, rgba(0, 0, 0, .10)), linear-gradient(145deg, #e8eef1, #ffffff);
-            box-shadow: inset 11px 12px 22px rgba(62, 77, 86, .15), inset -11px -11px 22px rgba(255, 255, 255, .94);
-        }
-
-        .btn {
-            position: absolute;
-            width: 68px;
-            height: 68px;
-            border: none;
-            outline: none;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 4;
-            cursor: pointer;
-            overflow: hidden;
-            color: #5d6678;
-            background: radial-gradient(circle at 30% 22%, #ffffff 0 23%, #f7fafb 42%, #e4e9eb 72%, #cfd8dc 100%);
-            box-shadow: 12px 14px 22px rgba(48, 58, 64, .30), -8px -8px 18px rgba(255, 255, 255, .85), inset 2px 2px 4px rgba(255, 255, 255, .95), inset -4px -5px 8px rgba(90, 105, 112, .12);
-            transition: transform .12s ease, box-shadow .12s ease, background .18s ease, color .18s ease, filter .12s ease;
-            font-weight: 950;
-        }
-
-        .btn::before {
-            content: "";
-            position: absolute;
-            left: 17%;
-            top: 9%;
-            width: 58%;
-            height: 34%;
-            border-radius: 50%;
-            background: linear-gradient(180deg, rgba(255, 255, 255, .95), rgba(255, 255, 255, .12));
-            transform: rotate(-18deg);
-            pointer-events: none;
-        }
-
-        .btn::after {
-            content: "";
-            position: absolute;
-            inset: 1px;
-            border-radius: inherit;
-            border: 1px solid rgba(255, 255, 255, .82);
-            pointer-events: none;
-        }
-
-        .btn:active,
-        .btn.active,
-        .btn.latched {
-            transform: translateY(7px) scale(.95);
-            filter: saturate(1.16) brightness(1.04);
-            color: #fff;
-            background: radial-gradient(circle at 48% 62%, #d8fbff 0 10%, #5ee1ff 27%, #159aff 57%, #0047b2 100%);
-            box-shadow: inset 9px 10px 17px rgba(0, 0, 0, .42), inset -7px -7px 14px rgba(255, 255, 255, .44), 0 5px 8px rgba(48, 58, 64, .25), 0 0 0 5px rgba(88, 178, 255, .18), 0 0 34px rgba(47, 153, 255, .78);
-        }
-
-        .btn.latched {
-            outline: 4px solid rgba(83, 198, 255, .35);
-        }
-
-        .forward {
-            left: 108px;
-            top: 14px
-        }
-
-        .left {
-            left: 14px;
-            top: 108px
-        }
-
-        .right {
-            right: 14px;
-            top: 108px
-        }
-
-        .back {
-            left: 108px;
-            top: 203px
-        }
-
-        .corner {
-            width: 40px;
-            height: 40px;
-            font-size: 12px;
-            font-weight: 950;
-            letter-spacing: .3px;
-        }
-
-        .fl {
-            left: 56px;
-            top: 56px
-        }
-
-        .fr {
-            right: 56px;
-            top: 56px
-        }
-
-        .bl {
-            left: 56px;
-            bottom: 56px
-        }
-
-        .br {
-            right: 56px;
-            bottom: 56px
-        }
-
-        .arrow {
-            width: 0;
-            height: 0;
-            z-index: 2;
-            filter: drop-shadow(0 2px 1px rgba(255, 255, 255, .70)) drop-shadow(0 4px 4px rgba(0, 0, 0, .18));
-        }
-
-        .up {
-            border-left: 16px solid transparent;
-            border-right: 16px solid transparent;
-            border-bottom: 27px solid #5d6678;
-        }
-
-        .down {
-            border-left: 16px solid transparent;
-            border-right: 16px solid transparent;
-            border-top: 27px solid #5d6678;
-        }
-
-        .leftA {
-            border-top: 16px solid transparent;
-            border-bottom: 16px solid transparent;
-            border-right: 27px solid #5d6678;
-        }
-
-        .rightA {
-            border-top: 16px solid transparent;
-            border-bottom: 16px solid transparent;
-            border-left: 27px solid #5d6678;
-        }
-
-        .btn:active .up,
-        .btn.active .up,
-        .btn.latched .up {
-            border-bottom-color: #fff
-        }
-
-        .btn:active .down,
-        .btn.active .down,
-        .btn.latched .down {
-            border-top-color: #fff
-        }
-
-        .btn:active .leftA,
-        .btn.active .leftA {
-            border-right-color: #fff
-        }
-
-        .btn:active .rightA,
-        .btn.active .rightA {
-            border-left-color: #fff
-        }
-
-        .stop {
-            width: 92px;
-            height: 92px;
-            left: 96px;
-            top: 96px;
-            font-size: 0;
-        }
-
-        .stop::before {
-            content: "";
-            position: relative;
-            width: 30px;
-            height: 30px;
-            left: auto;
-            top: auto;
-            border-radius: 5px;
-            background: #ff7380;
-            transform: none;
-            box-shadow: 0 0 12px rgba(255, 115, 128, .58), 0 2px 4px rgba(0, 0, 0, .20), inset 0 1px 0 rgba(255, 255, 255, .72);
-            z-index: 2;
-        }
-
-        .stop:active,
-        .stop.active {
-            background: radial-gradient(circle at 48% 62%, #fff0f2 0 10%, #ff9ca5 30%, #ff5463 60%, #b90016 100%);
-            box-shadow: inset 9px 10px 17px rgba(0, 0, 0, .34), inset -7px -7px 14px rgba(255, 255, 255, .38), 0 5px 8px rgba(48, 58, 64, .25), 0 0 0 5px rgba(255, 99, 115, .18), 0 0 30px rgba(255, 68, 85, .60);
-        }
-
-        .joyWrap {
-            width: 285px;
-            height: 285px;
-            border-radius: 50%;
-            background: radial-gradient(circle at 35% 25%, rgba(255, 255, 255, .97), rgba(241, 246, 248, .90) 30%, rgba(199, 211, 216, .50) 62%, rgba(88, 100, 106, .18) 100%), linear-gradient(145deg, #ffffff, #d4dde1);
-            box-shadow: 18px 20px 35px rgba(48, 58, 64, .34), -12px -12px 28px rgba(255, 255, 255, .86), inset 8px 8px 18px rgba(255, 255, 255, .83), inset -12px -12px 25px rgba(70, 84, 92, .15);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            position: relative;
-            touch-action: none;
-        }
-
-        .joyWrap::before {
-            content: "";
-            position: absolute;
-            width: 220px;
-            height: 220px;
-            border-radius: 50%;
-            background: radial-gradient(circle at 50% 50%, rgba(245, 248, 249, .68), rgba(159, 174, 183, .22) 62%, rgba(0, 0, 0, .10)), linear-gradient(145deg, #e8eef1, #ffffff);
-            box-shadow: inset 12px 13px 24px rgba(62, 77, 86, .16), inset -12px -12px 24px rgba(255, 255, 255, .94);
-        }
-
-        .joyBase {
-            width: 205px;
-            height: 205px;
-            border-radius: 50%;
-            position: relative;
-            background: radial-gradient(circle at center, rgba(255, 255, 255, .15), transparent 33%), radial-gradient(circle at center, transparent 0 58%, rgba(95, 110, 121, .16) 59%, transparent 64%);
-            z-index: 2;
-        }
-
-        .joyBase::before,
-        .joyBase::after {
-            content: "";
-            position: absolute;
-            background: rgba(93, 102, 120, .22);
-            border-radius: 20px;
-            box-shadow: 0 1px 0 rgba(255, 255, 255, .75);
-        }
-
-        .joyBase::before {
-            width: 145px;
-            height: 5px;
-            left: 30px;
-            top: 100px;
-        }
-
-        .joyBase::after {
-            width: 5px;
-            height: 145px;
-            left: 100px;
-            top: 30px;
-        }
-
-        .knob {
-            width: 96px;
-            height: 96px;
-            border-radius: 50%;
-            position: absolute;
-            left: 54px;
-            top: 54px;
-            background: radial-gradient(circle at 30% 22%, #ffffff 0 13%, #bcecff 23%, #329cff 50%, #075fd4 78%, #02275e 100%);
-            box-shadow: 15px 17px 24px rgba(48, 58, 64, .36), -7px -7px 14px rgba(255, 255, 255, .62), inset 8px 8px 14px rgba(255, 255, 255, .52), inset -10px -12px 18px rgba(0, 0, 0, .40), 0 0 24px rgba(46, 155, 255, .30);
-            z-index: 100;
-            transition: box-shadow .12s;
-        }
-
-        .knob::before {
-            content: "";
-            position: absolute;
-            width: 62px;
-            height: 32px;
-            border-radius: 50%;
-            left: 18px;
-            top: 13px;
-            background: linear-gradient(180deg, rgba(255, 255, 255, .95), rgba(255, 255, 255, .10));
-            filter: blur(.5px);
-            transform: rotate(-18deg);
-        }
-
-        .knob.active {
-            box-shadow: 20px 23px 30px rgba(48, 58, 64, .39), -6px -6px 13px rgba(255, 255, 255, .65), inset 4px 4px 8px rgba(255, 255, 255, .95), inset -8px -9px 16px rgba(90, 105, 112, .18), 0 0 36px rgba(46, 155, 255, .80);
-        }
-
-        .joyText {
-            position: absolute;
-            top: 20px;
-            width: 210px;
-            height: 58px;
-            z-index: 1;
-            pointer-events: none;
-        }
-
-        .joyText svg {
-            width: 100%;
-            height: 100%;
-            overflow: visible;
-        }
-
-        .joyText text {
-            font-family: Arial, Helvetica, sans-serif;
-            font-size: 8px;
-            font-weight: 800;
-            letter-spacing: 1.15px;
-            fill: #4f5868;
-            opacity: .78;
-            text-shadow: 0 1px 0 #fff;
-        }
-
-        .speedBox {
-            margin-top: 10px;
-            width: 305px;
-            min-height: 72px;
-            padding: 8px 16px 8px;
-            border-radius: 34px;
-            background: linear-gradient(145deg, #ffffff, #e2e9ec);
-            box-shadow: 10px 11px 22px rgba(48, 58, 64, .26), -8px -8px 20px rgba(255, 255, 255, .90), inset 3px 3px 8px rgba(255, 255, 255, .88), inset -4px -4px 10px rgba(70, 84, 92, .10);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .speedBox label {
-            font-size: 16px;
-            font-weight: 500;
-            margin-bottom: 6px;
-            padding: 3px 16px;
-            border-radius: 22px;
-            background: linear-gradient(145deg, #ffffff, #dfe7ea);
-            box-shadow: 5px 5px 10px rgba(48, 58, 64, .18), -5px -5px 10px rgba(255, 255, 255, .85);
-            color: #111;
-            text-shadow: 0 1px 0 #fff, 0 3px 5px rgba(0, 0, 0, .22);
-        }
-
-        .speedRow {
-            display: flex;
-            align-items: center;
-            gap: 13px;
-        }
-
-        input[type=range] {
-            width: 205px;
-            height: 8px;
-            appearance: none;
-            border-radius: 20px;
-            background: linear-gradient(90deg, #5d6678 55%, #d8e0e4 55%);
-            box-shadow: inset 3px 3px 7px rgba(0, 0, 0, .2), inset -3px -3px 7px rgba(255, 255, 255, .95);
-        }
-
-        input[type=range]::-webkit-slider-thumb {
-            appearance: none;
-            width: 34px;
-            height: 34px;
-            border-radius: 50%;
-            background: radial-gradient(circle at 30% 25%, #fff, #eef4f6 34%, #aebbc2 72%, #5d6678);
-            box-shadow: 0 8px 16px rgba(0, 0, 0, .28), inset 4px 4px 8px rgba(255, 255, 255, .70), inset -4px -4px 8px rgba(0, 0, 0, .20);
-        }
-
-        #speedVal {
-            font-size: 15px;
-            font-weight: 900;
-            width: 45px;
-            text-align: left;
-            color: #111;
-            text-shadow: 0 1px 0 #fff, 0 2px 4px rgba(0, 0, 0, .32);
-        }
-
-        .footerText {
-            margin-top: auto;
-            width: 100%;
-            text-align: center;
-            font-family: Arial, Helvetica, sans-serif;
-            font-size: 12px;
-            font-weight: 500;
-            color: #6b7280;
-            line-height: 1.15;
-            padding: 10px 0 10px;
-            text-shadow: 0 1px 0 rgba(255, 255, 255, .9);
-            z-index: 999;
-            pointer-events: none;
-        }
-
-        @media (max-width:390px) {
-            .main { padding-top: 10px; }
-            h1 {
-                font-size: 29px;
-            }
-
-            .topRow {
-                top: 58px;
-                max-width: 390px;
-                transform: translateX(-50%) scale(.94);
-            }
-
-            .controls,
-            .joyWrap {
-                width: 280px;
-                height: 280px;
-            }
-
-            .modeStage {
-                width: 300px;
-            }
-
-            .controls::before {
-                width: 216px;
-                height: 216px;
-                left: 32px;
-                top: 32px;
-            }
-
-            .joyWrap::before {
-                width: 216px;
-                height: 216px;
-            }
-
-            .forward {
-                left: 106px;
-                top: 12px
-            }
-
-            .back {
-                left: 106px;
-                top: 200px
-            }
-
-            .left {
-                left: 12px;
-                top: 106px
-            }
-
-            .right {
-                right: 12px;
-                top: 106px
-            }
-
-            .stop {
-                left: 94px;
-                top: 94px;
-            }
-
-            .fl {
-                left: 54px;
-                top: 54px
-            }
-
-            .fr {
-                right: 54px;
-                top: 54px
-            }
-
-            .bl {
-                left: 54px;
-                bottom: 54px
-            }
-
-            .br {
-                right: 54px;
-                bottom: 54px
-            }
-
-            .speedBox {
-                width: 292px;
-            }
-        }
-
-        @media (orientation:landscape) {
-            .main {
-                min-height: 100dvh;
-                height: auto;
-                padding: 10px 18px 0;
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                grid-template-rows: auto auto auto auto 1fr auto auto;
-                column-gap: 24px;
-                row-gap: 4px;
-                align-items: center;
-                justify-items: center;
-            }
-
-            h1 {
-                grid-column: 1/-1;
-                font-size: 28px;
-                line-height: 1;
-            }
-
-            h3 {
-                grid-column: 1/-1;
-                font-size: 12px;
-                margin: 0;
-            }
-
-            .statusDock {
-                grid-column: 1/-1;
-                grid-row: 4;
-                margin-top: 4px;
-            }
-
-            .trimBox {
-                grid-column: 1;
-                grid-row: 4;
-                margin-top: 2px;
-            }
-
-            .modeSwitch {
-                display: none;
-            }
-
-            .topRow {
-                position: absolute;
-                top: 66px;
-                left: 50%;
-                max-width: 560px;
-                transform: translateX(-50%) scale(.82);
-            }
-
-            .modeStage {
-                grid-column: 1/-1;
-                grid-row: 5;
-                margin-top: 2px;
-                width: min(720px, 96vw);
-                overflow: visible;
-                transform: none;
-            }
-
-            .track {
-                width: 100%;
-                gap: 26px;
-                justify-content: center;
-                transform: none !important;
-            }
-
-            .panel {
-                width: auto;
-                flex: 0 0 auto;
-            }
-
-            .speedBox {
-                grid-column: 1/-1;
-                grid-row: 6;
-                margin-top: 0;
-                width: 380px;
-                min-height: 74px;
-                transform: scale(.88);
-            }
-
-            #speedSlider {
-                width: 340px;
-            }
-
-            .footerText {
-                grid-column: 1/-1;
-                grid-row: 7;
-                padding: 8px 0 12px;
-            }
-
-        }
-
-        @media (orientation:landscape) and (max-height:430px) {
-            h1 {
-                font-size: 22px;
-            }
-
-            h3 {
-                font-size: 11px;
-            }
-
-            .statusDock {
-                transform: scale(.78);
-                margin-top: -2px;
-            }
-
-            .trimBox {
-                transform: scale(.78);
-                margin-top: -4px;
-            }
-
-            .topRow {
-                top: 40px;
-                transform: translateX(-50%) scale(.62);
-            }
-
-            .modeStage {
-                width: min(650px, 96vw);
-                transform: scale(.70);
-                transform-origin: center;
-            }
-
-            .track {
-                gap: 18px;
-            }
-
-            .speedBox {
-                transform: scale(.70);
-                margin-top: -22px;
-            }
-
-            .footerText {
-                font-size: 11px;
-                padding-bottom: 6px;
-            }
-        }
-
-        @media (min-width:900px) and (orientation:landscape) {
-            .main {
-                padding: 22px 34px 0;
-                grid-template-columns: 1fr 1fr;
-                grid-template-rows: auto auto auto auto 1fr auto auto;
-                column-gap: 48px;
-                row-gap: 10px;
-            }
-
-            h1 {
-                font-size: 44px;
-            }
-
-            h3 {
-                font-size: 18px;
-            }
-
-            .statusDock {
-                font-size: 15px;
-                padding: 9px 18px;
-            }
-
-            .netDot {
-                width: 24px;
-                height: 24px;
-            }
-
-            .trimBox {
-                width: 300px;
-                height: 48px;
-                transform: none;
-            }
-
-            #trimSlider {
-                width: 270px;
-                height: 30px;
-            }
-
-            .topRow {
-                top: 112px;
-                max-width: 780px;
-                transform: translateX(-50%) scale(1.05);
-            }
-
-            .modeStage {
-                width: min(860px, 92vw);
-                transform: scale(1.06);
-                transform-origin: center;
-                margin-top: 36px;
-            }
-
-            .track {
-                gap: 70px;
-            }
-
-            .speedBox {
-                width: 540px;
-                min-height: 96px;
-                transform: none;
-                margin-top: 24px;
-            }
-
-            .speedBox label {
-                font-size: 22px;
-            }
-
-            #speedSlider {
-                width: 500px;
-                height: 40px;
-            }
-
-            #speedSlider::-webkit-slider-thumb {
-                width: 64px;
-                height: 64px;
-            }
-
-            #speedVal {
-                font-size: 30px;
-                width: 70px;
-            }
-        }
-
-        @media (min-width:1200px) and (orientation:landscape) {
-            .modeStage {
-                transform: scale(1.18);
-                margin-top: 58px;
-            }
-
-            .speedBox {
-                margin-top: 54px;
-            }
-
-            .topRow {
-                transform: translateX(-50%) scale(1.15);
-            }
-        }
-
-
-        /* FINAL RESPONSIVE FIXES: laptop + iPhone landscape */
-        @media (orientation:landscape) {
-            html, body {
-                height: 100%;
-                overflow: hidden;
-            }
-
-            .main {
-                height: 100dvh;
-                min-height: 100dvh;
-                overflow: hidden;
-                padding: 12px 18px 6px;
-                display: grid;
-                grid-template-columns: 1fr;
-                grid-template-rows: auto auto auto 1fr auto auto;
-                row-gap: 5px;
-                justify-items: center;
-                align-items: center;
-            }
-
-            h1 {
-                grid-column: 1;
-                grid-row: 1;
-                font-size: clamp(24px, 3.2vw, 42px);
-                line-height: .95;
-            }
-
-            h3 {
-                grid-column: 1;
-                grid-row: 2;
-                font-size: clamp(12px, 1.4vw, 17px);
-                margin: 2px 0 0;
-            }
-
-            .statusDock {
-                grid-column: 1;
-                grid-row: 3;
-                margin-top: 5px;
-                transform: none;
-                z-index: 30;
-            }
-
-            .trimBox {
-                position: absolute;
-                left: 50%;
-                top: clamp(84px, 14vh, 122px);
-                transform: translateX(-50%);
-                width: clamp(180px, 24vw, 260px);
-                z-index: 20;
-            }
-
-            .topRow {
-                position: absolute;
-                top: clamp(78px, 13vh, 125px);
-                left: 50%;
-                width: min(94vw, 1020px);
-                max-width: none;
-                padding: 0 22px;
-                transform: translateX(-50%) scale(.86);
-                transform-origin: top center;
-                z-index: 25;
-            }
-
-            .modeSwitch { display: none; }
-
-            .modeStage {
-                grid-column: 1;
-                grid-row: 4;
-                width: min(92vw, 790px);
-                margin-top: clamp(8px, 2vh, 24px);
-                transform: none;
-                overflow: visible;
-            }
-
-            .track {
-                width: 100%;
-                gap: clamp(44px, 7vw, 92px);
-                justify-content: center;
-                align-items: center;
-                transform: none !important;
-            }
-
-            .panel { width: auto; flex: 0 0 auto; }
-
-
-            .speedBox {
-                grid-column: 1;
-                grid-row: 5;
-                width: clamp(320px, 38vw, 520px);
-                min-height: clamp(62px, 8vh, 82px);
-                margin-top: 0;
-                padding: 7px 16px;
-                transform: none;
-            }
-
-            #speedSlider { width: clamp(220px, 30vw, 430px); }
-
-            .footerText {
-                grid-column: 1;
-                grid-row: 6;
-                padding: 3px 0 2px;
-                font-size: 11px;
-            }
-        }
-
-        @media (orientation:landscape) and (max-height:520px) {
-            .main {
-                padding: 5px 10px 3px;
-                grid-template-rows: auto auto auto 1fr auto auto;
-                row-gap: 1px;
-            }
-
-            h1 { font-size: clamp(18px, 5vh, 24px); }
-            h3 { font-size: clamp(9px, 3vh, 12px); margin-top: 0; }
-
-            .statusDock {
-                min-height: 24px;
-                padding: 3px 9px;
-                gap: 6px;
-                font-size: 9px;
-                margin-top: 1px;
-            }
-
-            .netDot { width: 15px; height: 15px; }
-
-            .trimBox {
-                top: 40px;
-                width: 165px;
-                height: 25px;
-                padding: 4px 10px;
-                transform: translateX(-50%) scale(.82);
-            }
-
-            #trimSlider { width: 145px; }
-            #trimSlider::-webkit-slider-thumb { width: 19px; height: 19px; }
-
-            .topRow {
-                top: 36px;
-                width: min(96vw, 760px);
-                padding: 0 30px;
-                transform: translateX(-50%) scale(.58);
-            }
-
-            .cornerGroup { gap: 7px; }
-
-            .modeStage {
-                width: min(96vw, 610px);
-                margin-top: -4px;
-                transform: scale(.68);
-                transform-origin: center;
-            }
-
-            .track { gap: 52px; }
-
-            .speedBox {
-                width: 310px;
-                min-height: 48px;
-                padding: 5px 12px;
-                margin-top: -36px;
-                transform: scale(.76);
-            }
-
-            .speedBox label {
-                font-size: 13px;
-                padding: 2px 14px;
-                margin-bottom: 3px;
-            }
-
-            input[type=range] { width: 200px; height: 6px; }
-            input[type=range]::-webkit-slider-thumb { width: 28px; height: 28px; }
-            #speedVal { font-size: 14px; }
-            .footerText { font-size: 9px; padding: 0; }
-        }
-
-        @media (min-width:900px) and (orientation:landscape) {
-            .topRow {
-                top: 112px;
-                width: min(92vw, 1120px);
-                transform: translateX(-50%) scale(.92);
-            }
-
-            .trimBox {
-                top: 128px;
-                width: 250px;
-                height: 38px;
-            }
-
-            .modeStage {
-                width: min(86vw, 910px);
-                margin-top: 24px;
-            }
-
-            .track { gap: 105px; }
-
-            .controls, .joyWrap {
-                width: 315px;
-                height: 315px;
-            }
-            .controls::before { width: 244px; height: 244px; left: 35px; top: 35px; }
-            .joyWrap::before { width: 246px; height: 246px; }
-            .forward { left: 119px; top: 16px; }
-            .back { left: 119px; top: 223px; }
-            .left { left: 18px; top: 120px; }
-            .right { right: 18px; top: 120px; }
-            .stop { left: 105px; top: 105px; }
-            .fl { left: 63px; top: 63px; }
-            .fr { right: 63px; top: 63px; }
-            .bl { left: 63px; bottom: 63px; }
-            .br { right: 63px; bottom: 63px; }
-            .joyBase { width: 230px; height: 230px; }
-            .joyBase::before { width: 162px; left: 34px; top: 112px; }
-            .joyBase::after { height: 162px; left: 112px; top: 34px; }
-            .knob { width: 108px; height: 108px; left: 61px; top: 61px; }
-
-            .speedBox {
-                width: 540px;
-                min-height: 82px;
-                margin-top: 2px;
-            }
-
-            #speedSlider { width: 430px; height: 10px; }
-            #speedSlider::-webkit-slider-thumb { width: 42px; height: 42px; }
-            #speedVal { font-size: 22px; width: 60px; }
-        }
-
-        @media (min-width:1200px) and (orientation:landscape) {
-            .modeStage { transform: none; margin-top: 20px; }
-            .topRow { transform: translateX(-50%) scale(.96); }
-            .track { gap: 115px; }
-            .speedBox { margin-top: 0; }
-        }
-
-
-        /* PROFESSIONAL LANDSCAPE + TRIM FINAL UPDATE */
-        .trimBox {
-            width: 235px;
-            height: 38px;
-            padding: 6px 14px;
-        }
-
-        #trimSlider {
-            width: 198px;
-            height: 8px;
-        }
-
-        #trimSlider::-webkit-slider-thumb {
-            width: 30px;
-            height: 30px;
-        }
-
-        @media (orientation:landscape) {
-            html,
-            body {
-                height: 100%;
-                overflow: hidden;
-            }
-
-            .main {
-                height: 100dvh;
-                min-height: 100dvh;
-                padding: 10px 34px 5px;
-                grid-template-columns: 1fr;
-                grid-template-rows: auto auto auto 1fr auto auto;
-                row-gap: 3px;
-                overflow: hidden;
-            }
-
-            h1 {
-                margin-top: 0;
-            }
-
-            .statusDock {
-                margin-top: 2px;
-            }
-
-            .trimBox {
-                position: absolute;
-                left: 50%;
-                top: clamp(92px, 14vh, 132px);
-                transform: translateX(-50%);
-                width: clamp(250px, 24vw, 330px);
-                height: clamp(42px, 5.4vh, 56px);
-                padding: 7px 18px;
-                z-index: 22;
-            }
-
-            #trimSlider {
-                width: calc(100% - 18px);
-                height: 10px;
-            }
-
-            #trimSlider::-webkit-slider-thumb {
-                width: 36px;
-                height: 36px;
-            }
-
-            .topRow {
-                top: clamp(90px, 14vh, 134px);
-                width: min(96vw, 1240px);
-                padding: 0 clamp(36px, 8vw, 120px);
-                transform: translateX(-50%) scale(.9);
-            }
-
-            .modeStage {
-                grid-row: 4;
-                width: min(96vw, 1040px);
-                margin-top: -4px;
-                transform: translateY(-8px);
-            }
-
-            .track {
-                gap: clamp(96px, 13vw, 185px);
-            }
-
-            .speedBox {
-                grid-row: 5;
-                margin-top: -4px;
-                width: clamp(390px, 45vw, 650px);
-                min-height: clamp(64px, 8.5vh, 88px);
-            }
-
-            #speedSlider {
-                width: clamp(280px, 34vw, 520px);
-            }
-
-            .footerText {
-                grid-row: 6;
-                padding: 1px 0 3px;
-            }
-        }
-
-        @media (min-width:900px) and (orientation:landscape) {
-            .main {
-                padding-left: 70px;
-                padding-right: 70px;
-                padding-top: 14px;
-            }
-
-            h1 {
-                font-size: clamp(42px, 3.7vw, 58px);
-            }
-
-            h3 {
-                font-size: clamp(15px, 1.2vw, 18px);
-            }
-
-            .statusDock {
-                margin-top: 4px;
-                padding: 8px 18px;
-            }
-
-            .topRow {
-                top: 120px;
-                width: min(94vw, 1320px);
-                padding-left: clamp(90px, 13vw, 190px);
-                padding-right: clamp(90px, 13vw, 190px);
-                transform: translateX(-50%) scale(.95);
-            }
-
-            .trimBox {
-                top: 142px;
-                width: 330px;
-                height: 52px;
-            }
-
-            #trimSlider {
-                width: 285px;
-                height: 11px;
-            }
-
-            #trimSlider::-webkit-slider-thumb {
-                width: 40px;
-                height: 40px;
-            }
-
-            .modeStage {
-                width: min(88vw, 1030px);
-                margin-top: -12px;
-                transform: translateY(-14px);
-            }
-
-            .track {
-                gap: clamp(130px, 12vw, 205px);
-            }
-
-            .controls,
-            .joyWrap {
-                width: 305px;
-                height: 305px;
-            }
-
-            .controls::before {
-                width: 236px;
-                height: 236px;
-                left: 34px;
-                top: 34px;
-            }
-
-            .joyWrap::before {
-                width: 238px;
-                height: 238px;
-            }
-
-            .forward {
-                left: 114px;
-                top: 15px;
-            }
-
-            .back {
-                left: 114px;
-                top: 216px;
-            }
-
-            .left {
-                left: 16px;
-                top: 116px;
-            }
-
-            .right {
-                right: 16px;
-                top: 116px;
-            }
-
-            .stop {
-                left: 101px;
-                top: 101px;
-            }
-
-            .fl {
-                left: 61px;
-                top: 61px;
-            }
-
-            .fr {
-                right: 61px;
-                top: 61px;
-            }
-
-            .bl {
-                left: 61px;
-                bottom: 61px;
-            }
-
-            .br {
-                right: 61px;
-                bottom: 61px;
-            }
-
-            .joyBase {
-                width: 224px;
-                height: 224px;
-            }
-
-            .joyBase::before {
-                width: 158px;
-                left: 33px;
-                top: 109px;
-            }
-
-            .joyBase::after {
-                height: 158px;
-                left: 109px;
-                top: 33px;
-            }
-
-            .knob {
-                width: 105px;
-                height: 105px;
-                left: 59px;
-                top: 59px;
-            }
-
-            .speedBox {
-                width: 610px;
-                min-height: 86px;
-                margin-top: -8px;
-            }
-
-            #speedSlider {
-                width: 485px;
-                height: 10px;
-            }
-
-            #speedSlider::-webkit-slider-thumb {
-                width: 44px;
-                height: 44px;
-            }
-        }
-
-        @media (min-width:1200px) and (orientation:landscape) {
-            .main {
-                padding-left: 92px;
-                padding-right: 92px;
-            }
-
-            .modeStage {
-                width: min(86vw, 1080px);
-                margin-top: -18px;
-                transform: translateY(-18px);
-            }
-
-            .track {
-                gap: clamp(155px, 14vw, 230px);
-            }
-
-            .speedBox {
-                margin-top: -18px;
-            }
-        }
-
-        @media (orientation:landscape) and (max-height:520px) {
-            .main {
-                padding: 3px 12px 2px;
-                grid-template-rows: auto auto auto 1fr auto auto;
-                row-gap: 0;
-            }
-
-            h1 {
-                font-size: clamp(17px, 5vh, 23px);
-                line-height: .88;
-            }
-
-            h3 {
-                font-size: clamp(8px, 2.6vh, 11px);
-                line-height: 1;
-            }
-
-            .statusDock {
-                min-height: 22px;
-                padding: 2px 8px;
-                font-size: 8.5px;
-                gap: 5px;
-                margin-top: 0;
-            }
-
-            .netDot {
-                width: 14px;
-                height: 14px;
-            }
-
-            .topRow {
-                top: 31px;
-                width: 100vw;
-                padding: 0 34px;
-                transform: translateX(-50%) scale(.56);
-            }
-
-            .trimBox {
-                top: 34px;
-                width: 220px;
-                height: 36px;
-                padding: 5px 14px;
-                transform: translateX(-50%) scale(.82);
-            }
-
-            #trimSlider {
-                width: 180px;
-                height: 8px;
-            }
-
-            #trimSlider::-webkit-slider-thumb {
-                width: 29px;
-                height: 29px;
-            }
-
-            .modeStage {
-                width: min(98vw, 690px);
-                margin-top: -12px;
-                transform: scale(.66) translateY(-34px);
-                transform-origin: center;
-            }
-
-            .track {
-                gap: 70px;
-            }
-
-            .speedBox {
-                width: 380px;
-                min-height: 54px;
-                padding: 5px 13px;
-                margin-top: -66px;
-                transform: scale(.78);
-                transform-origin: center;
-            }
-
-            .speedBox label {
-                font-size: 13px;
-                padding: 2px 14px;
-                margin-bottom: 2px;
-            }
-
-            .speedRow {
-                gap: 9px;
-            }
-
-            #speedSlider {
-                width: 285px;
-                height: 7px;
-            }
-
-            #speedSlider::-webkit-slider-thumb {
-                width: 30px;
-                height: 30px;
-            }
-
-            #speedVal {
-                font-size: 15px;
-                width: 45px;
-            }
-
-            .footerText {
-                font-size: 8px;
-                padding: 0;
-                line-height: 1;
-            }
-        }
-
-        @media (orientation:landscape) and (max-height:390px) {
-            .topRow {
-                top: 26px;
-                transform: translateX(-50%) scale(.50);
-            }
-
-            .trimBox {
-                top: 28px;
-                transform: translateX(-50%) scale(.74);
-            }
-
-            .modeStage {
-                transform: scale(.59) translateY(-50px);
-            }
-
-            .track {
-                gap: 86px;
-            }
-
-            .speedBox {
-                margin-top: -92px;
-                transform: scale(.70);
-            }
-
-            .footerText {
-                display: none;
-            }
-        }
-
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>ESP32-6WD V7 Internet Cloud Control</title>
+  <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+  <style>
+    * {
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
+      -webkit-tap-highlight-color: transparent;
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      min-height: 100%;
+      overflow-x: hidden;
+      overflow-y: auto;
+      background:
+        radial-gradient(circle at 18% 10%, rgba(255, 244, 197, .70), transparent 28%),
+        radial-gradient(circle at 86% 18%, rgba(189, 229, 255, .72), transparent 30%),
+        radial-gradient(circle at 50% 88%, rgba(255, 207, 181, .52), transparent 34%),
+        linear-gradient(145deg, #f7fbff, #d8e7ee 55%, #d7dde1);
+      font-family: 'SF Pro Display', 'Avenir Next', 'Segoe UI', Roboto, Arial, sans-serif;
+      overscroll-behavior: contain;
+      color: #101014;
+    }
+
+    .main {
+      width: 100vw;
+      min-height: 100dvh;
+      padding: 12px 12px 0;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 31px;
+      font-weight: 950;
+      letter-spacing: .8px;
+      color: #1f2b3d;
+      font-family: 'Avenir Next', 'SF Pro Display', 'Segoe UI', Arial, sans-serif;
+      text-shadow: 0 1px 0 #fff, 0 5px 13px rgba(52, 72, 86, .22);
+    }
+
+    h3 {
+      margin: 2px 0 0;
+      font-size: 14px;
+      font-weight: 800;
+      color: #4f5868;
+      letter-spacing: 0.5px;
+      text-shadow: 0 1px 0 #fff;
+    }
+
+    .versionTitle {
+      margin-top: 2px;
+      font-size: 14px;
+      font-weight: 900;
+      letter-spacing: .7px;
+      color: #4f5868;
+    }
+
+    .modeTitleText {
+      display: none;
+    }
+
+    .statusDock {
+      margin-top: 8px;
+      display: flex;
+      flex-direction: row;
+      flex-wrap: nowrap;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      min-height: 30px;
+      padding: 5px 11px;
+      border-radius: 999px;
+      background: linear-gradient(145deg, #ffffff, #e1e7ea);
+      box-shadow:
+        8px 9px 17px rgba(48, 58, 64, .23),
+        -6px -6px 14px rgba(255, 255, 255, .9),
+        inset 2px 2px 5px rgba(255, 255, 255, .9),
+        inset -3px -3px 7px rgba(70, 84, 92, .10);
+      font-size: 11.5px;
+      font-weight: 900;
+      letter-spacing: .5px;
+      color: #2c3139;
+      z-index: 12;
+      transition: background .35s ease, color .25s ease, box-shadow .35s ease;
+    }
+
+    .netDot {
+      width: 20px;
+      height: 20px;
+      flex: 0 0 auto;
+      border-radius: 50%;
+      background: #ff2a2a;
+      box-shadow: 0 0 0 5px rgba(255, 42, 42, .12), 0 0 18px rgba(255, 0, 0, .8), inset 2px 2px 4px rgba(255, 255, 255, .5), inset -2px -2px 5px rgba(0, 0, 0, .25);
+    }
+
+    #netText {
+      display: inline-block;
+      white-space: nowrap;
+      line-height: 1;
+    }
+
+    #netText .mqttOk {
+      color: #006b2f;
+      font-weight: 1000;
+    }
+
+    .statusDock.online {
+      background: linear-gradient(145deg, rgba(235, 255, 244, .96), rgba(208, 255, 229, .68));
+      color: #14351f;
+    }
+
+    .statusDock.online .netDot {
+      background: radial-gradient(circle at 30% 25%, #f4fff8 0%, #b8ffd4 35%, #39e979 68%, #00a94f 100%);
+      box-shadow: 0 0 0 5px rgba(0, 230, 118, .14), 0 0 22px rgba(0, 230, 118, .95), inset 2px 2px 4px rgba(255, 255, 255, .55), inset -2px -2px 5px rgba(0, 0, 0, .25);
+    }
+
+    .statusDock.fail {
+      color: #5a0000;
+    }
+
+    .statusDock.fail .netDot {
+      background: #5a0000;
+      box-shadow: 0 0 0 5px rgba(80, 0, 0, .18), 0 0 18px rgba(90, 0, 0, .95), inset 2px 2px 4px rgba(255, 255, 255, .2), inset -2px -2px 5px rgba(0, 0, 0, .45);
+    }
+
+    .roundBtn,
+    .smallBtn,
+    .btn,
+    .modeBtn {
+      border: none;
+      outline: none;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      color: #5d6678;
+      background:
+        radial-gradient(circle at 30% 22%, #ffffff 0 23%, #f7fafb 42%, #e4e9eb 72%, #cfd8dc 100%);
+      box-shadow:
+        12px 14px 22px rgba(48, 58, 64, .30),
+        -8px -8px 18px rgba(255, 255, 255, .85),
+        inset 2px 2px 4px rgba(255, 255, 255, .95),
+        inset -4px -5px 8px rgba(90, 105, 112, .12);
+      transition: transform .12s ease, box-shadow .12s ease, background .18s ease, color .18s ease, filter .12s ease;
+    }
+
+    .roundBtn::before,
+    .smallBtn::before,
+    .btn::before,
+    .modeBtn::before {
+      content: "";
+      position: absolute;
+      left: 17%;
+      top: 9%;
+      width: 58%;
+      height: 34%;
+      border-radius: 50%;
+      background: linear-gradient(180deg, rgba(255, 255, 255, .95), rgba(255, 255, 255, .12));
+      transform: rotate(-18deg);
+      pointer-events: none;
+    }
+
+    .roundBtn::after,
+    .smallBtn::after,
+    .btn::after,
+    .modeBtn::after {
+      content: "";
+      position: absolute;
+      inset: 1px;
+      border-radius: inherit;
+      border: 1px solid rgba(255, 255, 255, .82);
+      pointer-events: none;
+    }
+
+    .roundBtn:active,
+    .smallBtn:active,
+    .btn:active,
+    .btn.active,
+    .modeBtn:active,
+    .modeBtn.active {
+      transform: translateY(7px) scale(.95);
+      filter: saturate(1.15) brightness(1.03);
+      box-shadow:
+        4px 5px 10px rgba(48, 58, 64, .26),
+        -3px -3px 9px rgba(255, 255, 255, .7),
+        inset 7px 8px 16px rgba(70, 85, 94, .23),
+        inset -5px -5px 12px rgba(255, 255, 255, .78);
+    }
+
+    .topRow {
+      position: absolute;
+      top: 64px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 410px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding: 0 12px;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    .topRow .cornerGroup {
+      pointer-events: auto;
+    }
+
+    .cornerGroup {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .cornerGroup.right {
+      align-items: center;
+    }
+
+    .roundBtn {
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+    }
+
+    .roundBtn svg {
+      width: 25px;
+      height: 25px;
+      z-index: 2;
+      position: relative;
+      filter: drop-shadow(0 2px 2px rgba(0, 0, 0, .15));
+    }
+
+    #hornButton svg {
+      color: #f5a623;
+    }
+
+    #lightButton svg {
+      color: #36a8ff;
+    }
+
+    .roundBtn span {
+      font-size: 8px;
+      font-weight: 900;
+      letter-spacing: .8px;
+      z-index: 2;
+      position: relative;
+      text-transform: uppercase;
+    }
+
+    .roundBtn .ledGlow {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      opacity: 0;
+      transition: opacity .2s;
+      pointer-events: none;
+    }
+
+    .roundBtn.active,
+    .roundBtn.lightOn {
+      color: #5b4700;
+      background: radial-gradient(circle at 30% 22%, #fffdf4 0 18%, #fff2a8 42%, #ffc23a 72%, #e99a00 100%);
+      box-shadow:
+        0 0 0 3px rgba(255, 197, 40, .34),
+        0 0 24px rgba(255, 184, 0, .70),
+        4px 5px 10px rgba(48, 58, 64, .22),
+        inset 7px 8px 15px rgba(92, 68, 0, .18),
+        inset -5px -5px 12px rgba(255, 255, 255, .55);
+      transform: translateY(5px) scale(.96);
+    }
+
+    .roundBtn.active .ledGlow,
+    .roundBtn.lightOn .ledGlow {
+      background: radial-gradient(circle at 50% 55%, rgba(255, 210, 40, .52), transparent 66%);
+      opacity: 1;
+    }
+
+    .smallBtn {
+      width: 48px;
+      height: 25px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      font-size: 8px;
+      font-weight: 900;
+      letter-spacing: .6px;
+      text-transform: uppercase;
+    }
+
+    .smallBtn svg {
+      width: 12px;
+      height: 12px;
+      z-index: 2;
+      position: relative;
+    }
+
+    #hornPulseBtn svg {
+      color: #ff9f1c;
+    }
+
+    #lightPulseBtn svg {
+      color: #13b8ff;
+    }
+
+    .smallBtn.blinkRun {
+      color: #5b4700;
+      background: radial-gradient(circle at 30% 22%, #fffdf4 0 18%, #fff2a8 42%, #ffc23a 72%, #e99a00 100%);
+      box-shadow:
+        0 0 0 2px rgba(255, 197, 40, .36),
+        0 0 16px rgba(255, 184, 0, .70),
+        2px 3px 8px rgba(48, 58, 64, .22),
+        inset 5px 5px 11px rgba(92, 68, 0, .18),
+        inset -4px -4px 9px rgba(255, 255, 255, .55);
+      animation: pulseSkyBlink .333s infinite;
+    }
+
+    @keyframes pulseSkyBlink {
+
+      0%,
+      100% {
+        opacity: 1;
+        filter: brightness(1);
+      }
+
+      50% {
+        opacity: .46;
+        filter: brightness(1.18);
+      }
+    }
+
+    .trimBox {
+      margin-top: 8px;
+      width: 200px;
+      height: 30px;
+      padding: 5px 12px;
+      border-radius: 22px;
+      background: linear-gradient(145deg, #ffffff, #e1e7ea);
+      box-shadow:
+        8px 9px 17px rgba(48, 58, 64, .23),
+        -6px -6px 14px rgba(255, 255, 255, .9),
+        inset 2px 2px 5px rgba(255, 255, 255, .9),
+        inset -3px -3px 7px rgba(70, 84, 92, .10);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #trimSlider {
+      width: 168px;
+      height: 6px;
+      appearance: none;
+      border-radius: 20px;
+      background: linear-gradient(90deg, #d5dce0 0%, #d5dce0 50%, #4f5868 50%, #4f5868 50%, #d5dce0 50%, #d5dce0 100%);
+      box-shadow: inset 2px 2px 5px rgba(0, 0, 0, .20), inset -2px -2px 5px rgba(255, 255, 255, .95);
+    }
+
+    #trimSlider::-webkit-slider-thumb {
+      appearance: none;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 25%, #fff, #eef3f5 35%, #8b98a3 76%, #56616b);
+      box-shadow: 0 6px 10px rgba(0, 0, 0, .30), inset 3px 3px 6px rgba(255, 255, 255, .70), inset -3px -3px 6px rgba(0, 0, 0, .22);
+    }
+
+    .modeSwitch {
+      margin-top: 8px;
+      width: 245px;
+      height: 52px;
+      padding: 7px;
+      border-radius: 34px;
+      display: flex;
+      gap: 8px;
+      position: relative;
+      background:
+        radial-gradient(circle at 25% 18%, rgba(255, 255, 255, .95), transparent 45%),
+        linear-gradient(145deg, #fff9e7, #dceeff 55%, #e8e3ff);
+      box-shadow:
+        10px 11px 20px rgba(48, 58, 64, .24),
+        -7px -7px 16px rgba(255, 255, 255, .88),
+        inset 4px 4px 10px rgba(255, 255, 255, .82),
+        inset -5px -5px 12px rgba(70, 84, 92, .12);
+    }
+
+    .modeSwitch::before {
+      content: "";
+      position: absolute;
+      width: calc(50% - 10px);
+      height: 38px;
+      left: 7px;
+      top: 7px;
+      border-radius: 24px;
+      background:
+        radial-gradient(circle at 28% 20%, #ffffff 0 18%, #eaf7ff 42%, #9ed9ff 74%, #55aeea 100%);
+      box-shadow:
+        6px 7px 13px rgba(55, 76, 90, .26),
+        -4px -4px 9px rgba(255, 255, 255, .70),
+        inset 3px 3px 6px rgba(255, 255, 255, .92),
+        inset -5px -5px 10px rgba(47, 105, 139, .18),
+        0 0 18px rgba(98, 185, 255, .38);
+      transition: transform .38s cubic-bezier(.2, .9, .22, 1);
+      z-index: 0;
+    }
+
+    .modeSwitch.joySelected::before {
+      transform: translateX(calc(100% + 6px));
+    }
+
+    .modeBtn {
+      flex: 1;
+      border-radius: 26px;
+      height: 38px;
+      font-size: 10px;
+      font-weight: 950;
+      letter-spacing: .7px;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      background: transparent;
+      box-shadow: none;
+      color: #697489;
+      z-index: 1;
+    }
+
+    .modeBtn::before,
+    .modeBtn::after {
+      display: none;
+    }
+
+    .modeBtn:active,
+    .modeBtn.active {
+      transform: none;
+      box-shadow: none;
+      filter: none;
+      color: #203047;
+    }
+
+    .modeBtn svg {
+      width: 18px;
+      height: 18px;
+      z-index: 2;
+      position: relative;
+      transition: color .25s ease;
+    }
+
+    .modeBtn span {
+      z-index: 2;
+      position: relative;
+    }
+
+    #buttonModeBtn svg {
+      color: #ff9f1c;
+    }
+
+    #joyModeBtn svg {
+      color: #22a7f0;
+    }
+
+    .modeStage {
+      margin-top: 14px;
+      position: relative;
+      isolation: isolate;
+      touch-action: none;
+      width: 330px;
+    }
+
+    .track {
+      width: 200%;
+      display: flex;
+      transition: transform .38s cubic-bezier(.2, .9, .25, 1);
+    }
+
+    .modeStage.joystickMode .track {
+      transform: translateX(-50%);
+    }
+
+    .panel {
+      width: 50%;
+      flex: 0 0 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .controls {
+      position: relative;
+      width: 285px;
+      height: 285px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 25%, rgba(255, 255, 255, .97), rgba(241, 246, 248, .90) 30%, rgba(199, 211, 216, .50) 62%, rgba(88, 100, 106, .18) 100%), linear-gradient(145deg, #ffffff, #d4dde1);
+      box-shadow: 18px 20px 35px rgba(48, 58, 64, .32), -12px -12px 28px rgba(255, 255, 255, .86), inset 8px 8px 18px rgba(255, 255, 255, .83), inset -12px -12px 25px rgba(70, 84, 92, .14);
+    }
+
+    .controls::before {
+      content: "";
+      position: absolute;
+      width: 220px;
+      height: 220px;
+      left: 32px;
+      top: 32px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 50% 50%, rgba(245, 248, 249, .70), rgba(159, 174, 183, .22) 62%, rgba(0, 0, 0, .10)), linear-gradient(145deg, #e8eef1, #ffffff);
+      box-shadow: inset 11px 12px 22px rgba(62, 77, 86, .15), inset -11px -11px 22px rgba(255, 255, 255, .94);
+    }
+
+    .btn {
+      position: absolute;
+      width: 68px;
+      height: 68px;
+      border: none;
+      outline: none;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 4;
+      cursor: pointer;
+      overflow: hidden;
+      color: #5d6678;
+      background: radial-gradient(circle at 30% 22%, #ffffff 0 23%, #f7fafb 42%, #e4e9eb 72%, #cfd8dc 100%);
+      box-shadow: 12px 14px 22px rgba(48, 58, 64, .30), -8px -8px 18px rgba(255, 255, 255, .85), inset 2px 2px 4px rgba(255, 255, 255, .95), inset -4px -5px 8px rgba(90, 105, 112, .12);
+      transition: transform .12s ease, box-shadow .12s ease, background .18s ease, color .18s ease, filter .12s ease;
+      font-weight: 950;
+    }
+
+    .btn::before {
+      content: "";
+      position: absolute;
+      left: 17%;
+      top: 9%;
+      width: 58%;
+      height: 34%;
+      border-radius: 50%;
+      background: linear-gradient(180deg, rgba(255, 255, 255, .95), rgba(255, 255, 255, .12));
+      transform: rotate(-18deg);
+      pointer-events: none;
+    }
+
+    .btn::after {
+      content: "";
+      position: absolute;
+      inset: 1px;
+      border-radius: inherit;
+      border: 1px solid rgba(255, 255, 255, .82);
+      pointer-events: none;
+    }
+
+    .btn:active,
+    .btn.active,
+    .btn.latched {
+      transform: translateY(7px) scale(.95);
+      filter: saturate(1.16) brightness(1.04);
+      color: #fff;
+      background: radial-gradient(circle at 48% 62%, #d8fbff 0 10%, #5ee1ff 27%, #159aff 57%, #0047b2 100%);
+      box-shadow: inset 9px 10px 17px rgba(0, 0, 0, .42), inset -7px -7px 14px rgba(255, 255, 255, .44), 0 5px 8px rgba(48, 58, 64, .25), 0 0 0 5px rgba(88, 178, 255, .18), 0 0 34px rgba(47, 153, 255, .78);
+    }
+
+    .btn.latched {
+      outline: 4px solid rgba(83, 198, 255, .35);
+    }
+
+    .forward {
+      left: 108px;
+      top: 14px
+    }
+
+    .left {
+      left: 14px;
+      top: 108px
+    }
+
+    .right {
+      right: 14px;
+      top: 108px
+    }
+
+    .back {
+      left: 108px;
+      top: 203px
+    }
+
+    .corner {
+      width: 40px;
+      height: 40px;
+      font-size: 12px;
+      font-weight: 950;
+      letter-spacing: .3px;
+    }
+
+    .fl {
+      left: 56px;
+      top: 56px
+    }
+
+    .fr {
+      right: 56px;
+      top: 56px
+    }
+
+    .bl {
+      left: 56px;
+      bottom: 56px
+    }
+
+    .br {
+      right: 56px;
+      bottom: 56px
+    }
+
+    .arrow {
+      width: 0;
+      height: 0;
+      z-index: 2;
+      filter: drop-shadow(0 2px 1px rgba(255, 255, 255, .70)) drop-shadow(0 4px 4px rgba(0, 0, 0, .18));
+    }
+
+    .up {
+      border-left: 16px solid transparent;
+      border-right: 16px solid transparent;
+      border-bottom: 27px solid #5d6678;
+    }
+
+    .down {
+      border-left: 16px solid transparent;
+      border-right: 16px solid transparent;
+      border-top: 27px solid #5d6678;
+    }
+
+    .leftA {
+      border-top: 16px solid transparent;
+      border-bottom: 16px solid transparent;
+      border-right: 27px solid #5d6678;
+    }
+
+    .rightA {
+      border-top: 16px solid transparent;
+      border-bottom: 16px solid transparent;
+      border-left: 27px solid #5d6678;
+    }
+
+    .btn:active .up,
+    .btn.active .up,
+    .btn.latched .up {
+      border-bottom-color: #fff
+    }
+
+    .btn:active .down,
+    .btn.active .down,
+    .btn.latched .down {
+      border-top-color: #fff
+    }
+
+    .btn:active .leftA,
+    .btn.active .leftA {
+      border-right-color: #fff
+    }
+
+    .btn:active .rightA,
+    .btn.active .rightA {
+      border-left-color: #fff
+    }
+
+    .stop {
+      width: 92px;
+      height: 92px;
+      left: 96px;
+      top: 96px;
+      font-size: 0;
+    }
+
+    .stop::before {
+      content: "";
+      position: relative;
+      width: 30px;
+      height: 30px;
+      left: auto;
+      top: auto;
+      border-radius: 5px;
+      background: #ff7380;
+      transform: none;
+      box-shadow: 0 0 12px rgba(255, 115, 128, .58), 0 2px 4px rgba(0, 0, 0, .20), inset 0 1px 0 rgba(255, 255, 255, .72);
+      z-index: 2;
+    }
+
+    .stop:active,
+    .stop.active {
+      background: radial-gradient(circle at 48% 62%, #fff0f2 0 10%, #ff9ca5 30%, #ff5463 60%, #b90016 100%);
+      box-shadow: inset 9px 10px 17px rgba(0, 0, 0, .34), inset -7px -7px 14px rgba(255, 255, 255, .38), 0 5px 8px rgba(48, 58, 64, .25), 0 0 0 5px rgba(255, 99, 115, .18), 0 0 30px rgba(255, 68, 85, .60);
+    }
+
+    .joyWrap {
+      width: 285px;
+      height: 285px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 25%, rgba(255, 255, 255, .97), rgba(241, 246, 248, .90) 30%, rgba(199, 211, 216, .50) 62%, rgba(88, 100, 106, .18) 100%), linear-gradient(145deg, #ffffff, #d4dde1);
+      box-shadow: 18px 20px 35px rgba(48, 58, 64, .34), -12px -12px 28px rgba(255, 255, 255, .86), inset 8px 8px 18px rgba(255, 255, 255, .83), inset -12px -12px 25px rgba(70, 84, 92, .15);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      touch-action: none;
+    }
+
+    .joyWrap::before {
+      content: "";
+      position: absolute;
+      width: 220px;
+      height: 220px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 50% 50%, rgba(245, 248, 249, .68), rgba(159, 174, 183, .22) 62%, rgba(0, 0, 0, .10)), linear-gradient(145deg, #e8eef1, #ffffff);
+      box-shadow: inset 12px 13px 24px rgba(62, 77, 86, .16), inset -12px -12px 24px rgba(255, 255, 255, .94);
+    }
+
+    .joyBase {
+      width: 205px;
+      height: 205px;
+      border-radius: 50%;
+      position: relative;
+      background: radial-gradient(circle at center, rgba(255, 255, 255, .15), transparent 33%), radial-gradient(circle at center, transparent 0 58%, rgba(95, 110, 121, .16) 59%, transparent 64%);
+      z-index: 2;
+    }
+
+    .joyBase::before,
+    .joyBase::after {
+      content: "";
+      position: absolute;
+      background: rgba(93, 102, 120, .22);
+      border-radius: 20px;
+      box-shadow: 0 1px 0 rgba(255, 255, 255, .75);
+    }
+
+    .joyBase::before {
+      width: 145px;
+      height: 5px;
+      left: 30px;
+      top: 100px;
+    }
+
+    .joyBase::after {
+      width: 5px;
+      height: 145px;
+      left: 100px;
+      top: 30px;
+    }
+
+    .knob {
+      width: 96px;
+      height: 96px;
+      border-radius: 50%;
+      position: absolute;
+      left: 54px;
+      top: 54px;
+      background: radial-gradient(circle at 30% 22%, #ffffff 0 13%, #bcecff 23%, #329cff 50%, #075fd4 78%, #02275e 100%);
+      box-shadow: 15px 17px 24px rgba(48, 58, 64, .36), -7px -7px 14px rgba(255, 255, 255, .62), inset 8px 8px 14px rgba(255, 255, 255, .52), inset -10px -12px 18px rgba(0, 0, 0, .40), 0 0 24px rgba(46, 155, 255, .30);
+      z-index: 100;
+      transition: box-shadow .12s;
+    }
+
+    .knob::before {
+      content: "";
+      position: absolute;
+      width: 62px;
+      height: 32px;
+      border-radius: 50%;
+      left: 18px;
+      top: 13px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, .95), rgba(255, 255, 255, .10));
+      filter: blur(.5px);
+      transform: rotate(-18deg);
+    }
+
+    .knob.active {
+      box-shadow: 20px 23px 30px rgba(48, 58, 64, .39), -6px -6px 13px rgba(255, 255, 255, .65), inset 4px 4px 8px rgba(255, 255, 255, .95), inset -8px -9px 16px rgba(90, 105, 112, .18), 0 0 36px rgba(46, 155, 255, .80);
+    }
+
+    .joyText {
+      position: absolute;
+      top: 20px;
+      width: 210px;
+      height: 58px;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .joyText svg {
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+    }
+
+    .joyText text {
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 8px;
+      font-weight: 800;
+      letter-spacing: 1.15px;
+      fill: #4f5868;
+      opacity: .78;
+      text-shadow: 0 1px 0 #fff;
+    }
+
+    .speedBox {
+      margin-top: 10px;
+      width: 305px;
+      min-height: 72px;
+      padding: 8px 16px 8px;
+      border-radius: 34px;
+      background: linear-gradient(145deg, #ffffff, #e2e9ec);
+      box-shadow: 10px 11px 22px rgba(48, 58, 64, .26), -8px -8px 20px rgba(255, 255, 255, .90), inset 3px 3px 8px rgba(255, 255, 255, .88), inset -4px -4px 10px rgba(70, 84, 92, .10);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .speedBox label {
+      font-size: 16px;
+      font-weight: 500;
+      margin-bottom: 6px;
+      padding: 3px 16px;
+      border-radius: 22px;
+      background: linear-gradient(145deg, #ffffff, #dfe7ea);
+      box-shadow: 5px 5px 10px rgba(48, 58, 64, .18), -5px -5px 10px rgba(255, 255, 255, .85);
+      color: #111;
+      text-shadow: 0 1px 0 #fff, 0 3px 5px rgba(0, 0, 0, .22);
+    }
+
+    .speedRow {
+      display: flex;
+      align-items: center;
+      gap: 13px;
+    }
+
+    input[type=range] {
+      width: 205px;
+      height: 8px;
+      appearance: none;
+      border-radius: 20px;
+      background: linear-gradient(90deg, #5d6678 55%, #d8e0e4 55%);
+      box-shadow: inset 3px 3px 7px rgba(0, 0, 0, .2), inset -3px -3px 7px rgba(255, 255, 255, .95);
+    }
+
+    input[type=range]::-webkit-slider-thumb {
+      appearance: none;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 25%, #fff, #eef4f6 34%, #aebbc2 72%, #5d6678);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, .28), inset 4px 4px 8px rgba(255, 255, 255, .70), inset -4px -4px 8px rgba(0, 0, 0, .20);
+    }
+
+    #speedVal {
+      font-size: 15px;
+      font-weight: 900;
+      width: 45px;
+      text-align: left;
+      color: #111;
+      text-shadow: 0 1px 0 #fff, 0 2px 4px rgba(0, 0, 0, .32);
+    }
+
+    .footerText {
+      margin-top: auto;
+      width: 100%;
+      text-align: center;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 12px;
+      font-weight: 500;
+      color: #6b7280;
+      line-height: 1.15;
+      padding: 10px 0 10px;
+      text-shadow: 0 1px 0 rgba(255, 255, 255, .9);
+      z-index: 999;
+      pointer-events: none;
+    }
+
+    @media (max-width:390px) {
+      .main {
+        padding-top: 10px;
+      }
+
+      h1 {
+        font-size: 29px;
+      }
+
+      .topRow {
+        top: 58px;
+        max-width: 390px;
+        transform: translateX(-50%) scale(.94);
+      }
+
+      .controls,
+      .joyWrap {
+        width: 280px;
+        height: 280px;
+      }
+
+      .modeStage {
+        width: 300px;
+      }
+
+      .controls::before {
+        width: 216px;
+        height: 216px;
+        left: 32px;
+        top: 32px;
+      }
+
+      .joyWrap::before {
+        width: 216px;
+        height: 216px;
+      }
+
+      .forward {
+        left: 106px;
+        top: 12px
+      }
+
+      .back {
+        left: 106px;
+        top: 200px
+      }
+
+      .left {
+        left: 12px;
+        top: 106px
+      }
+
+      .right {
+        right: 12px;
+        top: 106px
+      }
+
+      .stop {
+        left: 94px;
+        top: 94px;
+      }
+
+      .fl {
+        left: 54px;
+        top: 54px
+      }
+
+      .fr {
+        right: 54px;
+        top: 54px
+      }
+
+      .bl {
+        left: 54px;
+        bottom: 54px
+      }
+
+      .br {
+        right: 54px;
+        bottom: 54px
+      }
+
+      .speedBox {
+        width: 292px;
+      }
+    }
+
+    @media (orientation:landscape) {
+      .main {
+        min-height: 100dvh;
+        height: auto;
+        padding: 10px 18px 0;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: auto auto auto auto 1fr auto auto;
+        column-gap: 24px;
+        row-gap: 4px;
+        align-items: center;
+        justify-items: center;
+      }
+
+      h1 {
+        grid-column: 1/-1;
+        font-size: 28px;
+        line-height: 1;
+      }
+
+      h3 {
+        grid-column: 1/-1;
+        font-size: 12px;
+        margin: 0;
+      }
+
+      .statusDock {
+        grid-column: 1/-1;
+        grid-row: 4;
+        margin-top: 4px;
+      }
+
+      .trimBox {
+        grid-column: 1;
+        grid-row: 4;
+        margin-top: 2px;
+      }
+
+      .modeSwitch {
+        display: none;
+      }
+
+      .topRow {
+        position: absolute;
+        top: 66px;
+        left: 50%;
+        max-width: 560px;
+        transform: translateX(-50%) scale(.82);
+      }
+
+      .modeStage {
+        grid-column: 1/-1;
+        grid-row: 5;
+        margin-top: 2px;
+        width: min(720px, 96vw);
+        overflow: visible;
+        transform: none;
+      }
+
+      .track {
+        width: 100%;
+        gap: 26px;
+        justify-content: center;
+        transform: none !important;
+      }
+
+      .panel {
+        width: auto;
+        flex: 0 0 auto;
+      }
+
+      .speedBox {
+        grid-column: 1/-1;
+        grid-row: 6;
+        margin-top: 0;
+        width: 380px;
+        min-height: 74px;
+        transform: scale(.88);
+      }
+
+      #speedSlider {
+        width: 340px;
+      }
+
+      .footerText {
+        grid-column: 1/-1;
+        grid-row: 7;
+        padding: 8px 0 12px;
+      }
+
+    }
+
+    @media (orientation:landscape) and (max-height:430px) {
+      h1 {
+        font-size: 22px;
+      }
+
+      h3 {
+        font-size: 11px;
+      }
+
+      .statusDock {
+        transform: scale(.78);
+        margin-top: -2px;
+      }
+
+      .trimBox {
+        transform: scale(.78);
+        margin-top: -4px;
+      }
+
+      .topRow {
+        top: 40px;
+        transform: translateX(-50%) scale(.62);
+      }
+
+      .modeStage {
+        width: min(650px, 96vw);
+        transform: scale(.70);
+        transform-origin: center;
+      }
+
+      .track {
+        gap: 18px;
+      }
+
+      .speedBox {
+        transform: scale(.70);
+        margin-top: -22px;
+      }
+
+      .footerText {
+        font-size: 11px;
+        padding-bottom: 6px;
+      }
+    }
+
+    @media (min-width:900px) and (orientation:landscape) {
+      .main {
+        padding: 22px 34px 0;
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: auto auto auto auto 1fr auto auto;
+        column-gap: 48px;
+        row-gap: 10px;
+      }
+
+      h1 {
+        font-size: 44px;
+      }
+
+      h3 {
+        font-size: 18px;
+      }
+
+      .statusDock {
+        font-size: 15px;
+        padding: 9px 18px;
+      }
+
+      .netDot {
+        width: 24px;
+        height: 24px;
+      }
+
+      .trimBox {
+        width: 300px;
+        height: 48px;
+        transform: none;
+      }
+
+      #trimSlider {
+        width: 270px;
+        height: 30px;
+      }
+
+      .topRow {
+        top: 112px;
+        max-width: 780px;
+        transform: translateX(-50%) scale(1.05);
+      }
+
+      .modeStage {
+        width: min(860px, 92vw);
+        transform: scale(1.06);
+        transform-origin: center;
+        margin-top: 36px;
+      }
+
+      .track {
+        gap: 70px;
+      }
+
+      .speedBox {
+        width: 540px;
+        min-height: 96px;
+        transform: none;
+        margin-top: 24px;
+      }
+
+      .speedBox label {
+        font-size: 22px;
+      }
+
+      #speedSlider {
+        width: 500px;
+        height: 40px;
+      }
+
+      #speedSlider::-webkit-slider-thumb {
+        width: 64px;
+        height: 64px;
+      }
+
+      #speedVal {
+        font-size: 30px;
+        width: 70px;
+      }
+    }
+
+    @media (min-width:1200px) and (orientation:landscape) {
+      .modeStage {
+        transform: scale(1.18);
+        margin-top: 58px;
+      }
+
+      .speedBox {
+        margin-top: 54px;
+      }
+
+      .topRow {
+        transform: translateX(-50%) scale(1.15);
+      }
+    }
+
+
+    /* FINAL RESPONSIVE FIXES: laptop + iPhone landscape */
+    @media (orientation:landscape) {
+
+      html,
+      body {
+        height: 100%;
+        overflow: hidden;
+      }
+
+      .main {
+        height: 100dvh;
+        min-height: 100dvh;
+        overflow: hidden;
+        padding: 12px 18px 6px;
+        display: grid;
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto auto 1fr auto auto;
+        row-gap: 5px;
+        justify-items: center;
+        align-items: center;
+      }
+
+      h1 {
+        grid-column: 1;
+        grid-row: 1;
+        font-size: clamp(24px, 3.2vw, 42px);
+        line-height: .95;
+      }
+
+      h3 {
+        grid-column: 1;
+        grid-row: 2;
+        font-size: clamp(12px, 1.4vw, 17px);
+        margin: 2px 0 0;
+      }
+
+      .statusDock {
+        grid-column: 1;
+        grid-row: 3;
+        margin-top: 5px;
+        transform: none;
+        z-index: 30;
+      }
+
+      .trimBox {
+        position: absolute;
+        left: 50%;
+        top: clamp(84px, 14vh, 122px);
+        transform: translateX(-50%);
+        width: clamp(180px, 24vw, 260px);
+        z-index: 20;
+      }
+
+      .topRow {
+        position: absolute;
+        top: clamp(78px, 13vh, 125px);
+        left: 50%;
+        width: min(94vw, 1020px);
+        max-width: none;
+        padding: 0 22px;
+        transform: translateX(-50%) scale(.86);
+        transform-origin: top center;
+        z-index: 25;
+      }
+
+      .modeSwitch {
+        display: none;
+      }
+
+      .modeStage {
+        grid-column: 1;
+        grid-row: 4;
+        width: min(92vw, 790px);
+        margin-top: clamp(8px, 2vh, 24px);
+        transform: none;
+        overflow: visible;
+      }
+
+      .track {
+        width: 100%;
+        gap: clamp(44px, 7vw, 92px);
+        justify-content: center;
+        align-items: center;
+        transform: none !important;
+      }
+
+      .panel {
+        width: auto;
+        flex: 0 0 auto;
+      }
+
+
+      .speedBox {
+        grid-column: 1;
+        grid-row: 5;
+        width: clamp(320px, 38vw, 520px);
+        min-height: clamp(62px, 8vh, 82px);
+        margin-top: 0;
+        padding: 7px 16px;
+        transform: none;
+      }
+
+      #speedSlider {
+        width: clamp(220px, 30vw, 430px);
+      }
+
+      .footerText {
+        grid-column: 1;
+        grid-row: 6;
+        padding: 3px 0 2px;
+        font-size: 11px;
+      }
+    }
+
+    @media (orientation:landscape) and (max-height:520px) {
+      .main {
+        padding: 5px 10px 3px;
+        grid-template-rows: auto auto auto 1fr auto auto;
+        row-gap: 1px;
+      }
+
+      h1 {
+        font-size: clamp(18px, 5vh, 24px);
+      }
+
+      h3 {
+        font-size: clamp(9px, 3vh, 12px);
+        margin-top: 0;
+      }
+
+      .statusDock {
+        min-height: 24px;
+        padding: 3px 9px;
+        gap: 6px;
+        font-size: 9px;
+        margin-top: 1px;
+      }
+
+      .netDot {
+        width: 15px;
+        height: 15px;
+      }
+
+      .trimBox {
+        top: 40px;
+        width: 165px;
+        height: 25px;
+        padding: 4px 10px;
+        transform: translateX(-50%) scale(.82);
+      }
+
+      #trimSlider {
+        width: 145px;
+      }
+
+      #trimSlider::-webkit-slider-thumb {
+        width: 19px;
+        height: 19px;
+      }
+
+      .topRow {
+        top: 36px;
+        width: min(96vw, 760px);
+        padding: 0 30px;
+        transform: translateX(-50%) scale(.58);
+      }
+
+      .cornerGroup {
+        gap: 7px;
+      }
+
+      .modeStage {
+        width: min(96vw, 610px);
+        margin-top: -4px;
+        transform: scale(.68);
+        transform-origin: center;
+      }
+
+      .track {
+        gap: 52px;
+      }
+
+      .speedBox {
+        width: 310px;
+        min-height: 48px;
+        padding: 5px 12px;
+        margin-top: -36px;
+        transform: scale(.76);
+      }
+
+      .speedBox label {
+        font-size: 13px;
+        padding: 2px 14px;
+        margin-bottom: 3px;
+      }
+
+      input[type=range] {
+        width: 200px;
+        height: 6px;
+      }
+
+      input[type=range]::-webkit-slider-thumb {
+        width: 28px;
+        height: 28px;
+      }
+
+      #speedVal {
+        font-size: 14px;
+      }
+
+      .footerText {
+        font-size: 9px;
+        padding: 0;
+      }
+    }
+
+    @media (min-width:900px) and (orientation:landscape) {
+      .topRow {
+        top: 112px;
+        width: min(92vw, 1120px);
+        transform: translateX(-50%) scale(.92);
+      }
+
+      .trimBox {
+        top: 128px;
+        width: 250px;
+        height: 38px;
+      }
+
+      .modeStage {
+        width: min(86vw, 910px);
+        margin-top: 24px;
+      }
+
+      .track {
+        gap: 105px;
+      }
+
+      .controls,
+      .joyWrap {
+        width: 315px;
+        height: 315px;
+      }
+
+      .controls::before {
+        width: 244px;
+        height: 244px;
+        left: 35px;
+        top: 35px;
+      }
+
+      .joyWrap::before {
+        width: 246px;
+        height: 246px;
+      }
+
+      .forward {
+        left: 119px;
+        top: 16px;
+      }
+
+      .back {
+        left: 119px;
+        top: 223px;
+      }
+
+      .left {
+        left: 18px;
+        top: 120px;
+      }
+
+      .right {
+        right: 18px;
+        top: 120px;
+      }
+
+      .stop {
+        left: 105px;
+        top: 105px;
+      }
+
+      .fl {
+        left: 63px;
+        top: 63px;
+      }
+
+      .fr {
+        right: 63px;
+        top: 63px;
+      }
+
+      .bl {
+        left: 63px;
+        bottom: 63px;
+      }
+
+      .br {
+        right: 63px;
+        bottom: 63px;
+      }
+
+      .joyBase {
+        width: 230px;
+        height: 230px;
+      }
+
+      .joyBase::before {
+        width: 162px;
+        left: 34px;
+        top: 112px;
+      }
+
+      .joyBase::after {
+        height: 162px;
+        left: 112px;
+        top: 34px;
+      }
+
+      .knob {
+        width: 108px;
+        height: 108px;
+        left: 61px;
+        top: 61px;
+      }
+
+      .speedBox {
+        width: 540px;
+        min-height: 82px;
+        margin-top: 2px;
+      }
+
+      #speedSlider {
+        width: 430px;
+        height: 10px;
+      }
+
+      #speedSlider::-webkit-slider-thumb {
+        width: 42px;
+        height: 42px;
+      }
+
+      #speedVal {
+        font-size: 22px;
+        width: 60px;
+      }
+    }
+
+    @media (min-width:1200px) and (orientation:landscape) {
+      .modeStage {
+        transform: none;
+        margin-top: 20px;
+      }
+
+      .topRow {
+        transform: translateX(-50%) scale(.96);
+      }
+
+      .track {
+        gap: 115px;
+      }
+
+      .speedBox {
+        margin-top: 0;
+      }
+    }
+
+
+    /* PROFESSIONAL LANDSCAPE + TRIM FINAL UPDATE */
+    .trimBox {
+      width: 235px;
+      height: 38px;
+      padding: 6px 14px;
+    }
+
+    #trimSlider {
+      width: 198px;
+      height: 8px;
+    }
+
+    #trimSlider::-webkit-slider-thumb {
+      width: 30px;
+      height: 30px;
+    }
+
+    @media (orientation:landscape) {
+
+      html,
+      body {
+        height: 100%;
+        overflow: hidden;
+      }
+
+      .main {
+        height: 100dvh;
+        min-height: 100dvh;
+        padding: 10px 34px 5px;
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto auto 1fr auto auto;
+        row-gap: 3px;
+        overflow: hidden;
+      }
+
+      h1 {
+        margin-top: 0;
+      }
+
+      .statusDock {
+        margin-top: 2px;
+      }
+
+      .trimBox {
+        position: absolute;
+        left: 50%;
+        top: clamp(92px, 14vh, 132px);
+        transform: translateX(-50%);
+        width: clamp(250px, 24vw, 330px);
+        height: clamp(42px, 5.4vh, 56px);
+        padding: 7px 18px;
+        z-index: 22;
+      }
+
+      #trimSlider {
+        width: calc(100% - 18px);
+        height: 10px;
+      }
+
+      #trimSlider::-webkit-slider-thumb {
+        width: 36px;
+        height: 36px;
+      }
+
+      .topRow {
+        top: clamp(90px, 14vh, 134px);
+        width: min(96vw, 1240px);
+        padding: 0 clamp(36px, 8vw, 120px);
+        transform: translateX(-50%) scale(.9);
+      }
+
+      .modeStage {
+        grid-row: 4;
+        width: min(96vw, 1040px);
+        margin-top: -4px;
+        transform: translateY(-8px);
+      }
+
+      .track {
+        gap: clamp(96px, 13vw, 185px);
+      }
+
+      .speedBox {
+        grid-row: 5;
+        margin-top: -4px;
+        width: clamp(390px, 45vw, 650px);
+        min-height: clamp(64px, 8.5vh, 88px);
+      }
+
+      #speedSlider {
+        width: clamp(280px, 34vw, 520px);
+      }
+
+      .footerText {
+        grid-row: 6;
+        padding: 1px 0 3px;
+      }
+    }
+
+    @media (min-width:900px) and (orientation:landscape) {
+      .main {
+        padding-left: 70px;
+        padding-right: 70px;
+        padding-top: 14px;
+      }
+
+      h1 {
+        font-size: clamp(42px, 3.7vw, 58px);
+      }
+
+      h3 {
+        font-size: clamp(15px, 1.2vw, 18px);
+      }
+
+      .statusDock {
+        margin-top: 4px;
+        padding: 8px 18px;
+      }
+
+      .topRow {
+        top: 120px;
+        width: min(94vw, 1320px);
+        padding-left: clamp(90px, 13vw, 190px);
+        padding-right: clamp(90px, 13vw, 190px);
+        transform: translateX(-50%) scale(.95);
+      }
+
+      .trimBox {
+        top: 142px;
+        width: 330px;
+        height: 52px;
+      }
+
+      #trimSlider {
+        width: 285px;
+        height: 11px;
+      }
+
+      #trimSlider::-webkit-slider-thumb {
+        width: 40px;
+        height: 40px;
+      }
+
+      .modeStage {
+        width: min(88vw, 1030px);
+        margin-top: -12px;
+        transform: translateY(-14px);
+      }
+
+      .track {
+        gap: clamp(130px, 12vw, 205px);
+      }
+
+      .controls,
+      .joyWrap {
+        width: 305px;
+        height: 305px;
+      }
+
+      .controls::before {
+        width: 236px;
+        height: 236px;
+        left: 34px;
+        top: 34px;
+      }
+
+      .joyWrap::before {
+        width: 238px;
+        height: 238px;
+      }
+
+      .forward {
+        left: 114px;
+        top: 15px;
+      }
+
+      .back {
+        left: 114px;
+        top: 216px;
+      }
+
+      .left {
+        left: 16px;
+        top: 116px;
+      }
+
+      .right {
+        right: 16px;
+        top: 116px;
+      }
+
+      .stop {
+        left: 101px;
+        top: 101px;
+      }
+
+      .fl {
+        left: 61px;
+        top: 61px;
+      }
+
+      .fr {
+        right: 61px;
+        top: 61px;
+      }
+
+      .bl {
+        left: 61px;
+        bottom: 61px;
+      }
+
+      .br {
+        right: 61px;
+        bottom: 61px;
+      }
+
+      .joyBase {
+        width: 224px;
+        height: 224px;
+      }
+
+      .joyBase::before {
+        width: 158px;
+        left: 33px;
+        top: 109px;
+      }
+
+      .joyBase::after {
+        height: 158px;
+        left: 109px;
+        top: 33px;
+      }
+
+      .knob {
+        width: 105px;
+        height: 105px;
+        left: 59px;
+        top: 59px;
+      }
+
+      .speedBox {
+        width: 610px;
+        min-height: 86px;
+        margin-top: -8px;
+      }
+
+      #speedSlider {
+        width: 485px;
+        height: 10px;
+      }
+
+      #speedSlider::-webkit-slider-thumb {
+        width: 44px;
+        height: 44px;
+      }
+    }
+
+    @media (min-width:1200px) and (orientation:landscape) {
+      .main {
+        padding-left: 92px;
+        padding-right: 92px;
+      }
+
+      .modeStage {
+        width: min(86vw, 1080px);
+        margin-top: -18px;
+        transform: translateY(-18px);
+      }
+
+      .track {
+        gap: clamp(155px, 14vw, 230px);
+      }
+
+      .speedBox {
+        margin-top: -18px;
+      }
+    }
+
+    @media (orientation:landscape) and (max-height:520px) {
+      .main {
+        padding: 3px 12px 2px;
+        grid-template-rows: auto auto auto 1fr auto auto;
+        row-gap: 0;
+      }
+
+      h1 {
+        font-size: clamp(17px, 5vh, 23px);
+        line-height: .88;
+      }
+
+      h3 {
+        font-size: clamp(8px, 2.6vh, 11px);
+        line-height: 1;
+      }
+
+      .statusDock {
+        min-height: 22px;
+        padding: 2px 8px;
+        font-size: 8.5px;
+        gap: 5px;
+        margin-top: 0;
+      }
+
+      .netDot {
+        width: 14px;
+        height: 14px;
+      }
+
+      .topRow {
+        top: 31px;
+        width: 100vw;
+        padding: 0 34px;
+        transform: translateX(-50%) scale(.56);
+      }
+
+      .trimBox {
+        top: 34px;
+        width: 220px;
+        height: 36px;
+        padding: 5px 14px;
+        transform: translateX(-50%) scale(.82);
+      }
+
+      #trimSlider {
+        width: 180px;
+        height: 8px;
+      }
+
+      #trimSlider::-webkit-slider-thumb {
+        width: 29px;
+        height: 29px;
+      }
+
+      .modeStage {
+        width: min(98vw, 690px);
+        margin-top: -12px;
+        transform: scale(.66) translateY(-34px);
+        transform-origin: center;
+      }
+
+      .track {
+        gap: 70px;
+      }
+
+      .speedBox {
+        width: 380px;
+        min-height: 54px;
+        padding: 5px 13px;
+        margin-top: -66px;
+        transform: scale(.78);
+        transform-origin: center;
+      }
+
+      .speedBox label {
+        font-size: 13px;
+        padding: 2px 14px;
+        margin-bottom: 2px;
+      }
+
+      .speedRow {
+        gap: 9px;
+      }
+
+      #speedSlider {
+        width: 285px;
+        height: 7px;
+      }
+
+      #speedSlider::-webkit-slider-thumb {
+        width: 30px;
+        height: 30px;
+      }
+
+      #speedVal {
+        font-size: 15px;
+        width: 45px;
+      }
+
+      .footerText {
+        font-size: 8px;
+        padding: 0;
+        line-height: 1;
+      }
+    }
+
+    @media (orientation:landscape) and (max-height:390px) {
+      .topRow {
+        top: 26px;
+        transform: translateX(-50%) scale(.50);
+      }
+
+      .trimBox {
+        top: 28px;
+        transform: translateX(-50%) scale(.74);
+      }
+
+      .modeStage {
+        transform: scale(.59) translateY(-50px);
+      }
+
+      .track {
+        gap: 86px;
+      }
+
+      .speedBox {
+        margin-top: -92px;
+        transform: scale(.70);
+      }
+
+      .footerText {
+        display: none;
+      }
+    }
+  </style>
 </head>
 
 <body>
-    <div class="main">
-        <h1>ESP32-6WD</h1>
-        <h3 class="versionTitle">V7 Internet Cloud Control</h3>
-        <div class="trimBox">
-            <input id="trimSlider" type="range" min="-25" max="25" value="0">
-        </div>
-
-        <div id="modeSwitchBox" class="modeSwitch">
-            <button id="buttonModeBtn" class="modeBtn active" type="button">
-                <svg viewBox="0 0 24 24" fill="currentColor">
-                    <circle cx="7" cy="7" r="3"></circle>
-                    <circle cx="17" cy="7" r="3"></circle>
-                    <circle cx="7" cy="17" r="3"></circle>
-                    <circle cx="17" cy="17" r="3"></circle>
-                </svg>
-                <span>Buttons</span>
-            </button>
-            <button id="joyModeBtn" class="modeBtn" type="button">
-                <svg viewBox="0 0 24 24" fill="currentColor">
-                    <circle cx="12" cy="9" r="5"></circle>
-                    <rect x="6" y="15" width="12" height="5" rx="2"></rect>
-                </svg>
-                <span>Joystick</span>
-            </button>
-        </div>
-
-        <div class="statusDock" id="statusDock"><span class="netDot"></span><span id="netText">Connecting cloud
-                link...</span></div>
-
-        <div class="topRow">
-            <div class="cornerGroup left">
-                <button class="roundBtn" id="hornButton" aria-label="Horn" type="button">
-                    <div class="ledGlow"></div>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                        stroke-linejoin="round" aria-hidden="true">
-                        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="currentColor" stroke="none"
-                            opacity="0.9"></polygon>
-                        <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
-                        <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
-                    </svg>
-                    <span>Horn</span>
-                </button>
-                <button class="smallBtn pulseHornBtn" id="hornPulseBtn" aria-label="Pulse Horn" type="button">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-                        stroke-linecap="round">
-                        <path d="M2 12h2M6 8v8M10 5v14M14 8v8M18 6v12M22 12h-2" />
-                    </svg>
-                    Pulse
-                </button>
-            </div>
-            <div class="cornerGroup right">
-                <button class="roundBtn" id="lightButton" aria-label="Headlight" type="button">
-                    <div class="ledGlow"></div>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                        stroke-linejoin="round" aria-hidden="true">
-                        <circle cx="12" cy="12" r="5" fill="currentColor" opacity="0.9" stroke="none"></circle>
-                        <line x1="12" y1="2" x2="12" y2="5"></line>
-                        <line x1="12" y1="19" x2="12" y2="22"></line>
-                        <line x1="4.22" y1="4.22" x2="6.34" y2="6.34"></line>
-                        <line x1="17.66" y1="17.66" x2="19.78" y2="19.78"></line>
-                        <line x1="2" y1="12" x2="5" y2="12"></line>
-                        <line x1="19" y1="12" x2="22" y2="12"></line>
-                        <line x1="4.22" y1="19.78" x2="6.34" y2="17.66"></line>
-                        <line x1="17.66" y1="6.34" x2="19.78" y2="4.22"></line>
-                    </svg>
-                    <span>Light</span>
-                </button>
-                <button class="smallBtn blinkLightBtn" id="lightPulseBtn" aria-label="Pulse Light" type="button">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-                        stroke-linecap="round">
-                        <path d="M9 2L7 8H3l3.5 3-1.5 5L9 13l4 3-1.5-5L15 8h-4z" fill="currentColor" stroke="none"
-                            opacity="0.88" />
-                        <path d="M17 7l1-3M19 10l3-1M17 13l2 2" />
-                    </svg>
-                    Pulse
-                </button>
-            </div>
-        </div>
-
-        <div class="modeStage buttonMode" id="controlStage">
-            <div class="track">
-                <div class="panel buttonPanel">
-                    <div class="controls" id="buttonControls">
-                        <button class="btn corner fl" data-cmd="FL" type="button">FL</button>
-                        <button class="btn forward latchBtn" data-cmd="F" type="button"><span
-                                class="arrow up"></span></button>
-                        <button class="btn corner fr" data-cmd="FR" type="button">FR</button>
-                        <button class="btn left" data-cmd="L" type="button"><span class="arrow leftA"></span></button>
-                        <button class="btn stop" data-cmd="S" type="button">STOP</button>
-                        <button class="btn right" data-cmd="R" type="button"><span class="arrow rightA"></span></button>
-                        <button class="btn corner bl" data-cmd="BL" type="button">BL</button>
-                        <button class="btn back latchBtn" data-cmd="B" type="button"><span
-                                class="arrow down"></span></button>
-                        <button class="btn corner br" data-cmd="BR" type="button">BR</button>
-                    </div>
-                </div>
-                <div class="panel joyPanel">
-                    <div class="joyWrap">
-                        <div id="joyBase" class="joyBase">
-                            <div id="knob" class="knob"></div>
-                        </div>
-                        <div class="joyText">
-                            <svg viewBox="0 0 210 58">
-                                <path id="uTextPath" d="M 20 56 Q 105 -16 190 56" fill="none" />
-                                
-                                <text>
-                                    <textPath href="#uTextPath" startOffset="50%" text-anchor="middle">360° SMOOTH DRIVE
-                                    </textPath>
-                                </text>
-                            </svg>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="speedBox"><label>Speed</label>
-            <div class="speedRow"><input id="speedSlider" type="range" min="0" max="255" value="140"><span
-                    id="speedVal">55%</span></div>
-        </div>
-        <div class="footerText">© 2025 ESP32-6WD V7 | Designed by Aman Sharma</div>
+  <div class="main">
+    <h1>ESP32-6WD</h1>
+    <h3 class="versionTitle">V7 Internet Cloud Control</h3>
+    <div class="trimBox">
+      <input id="trimSlider" type="range" min="-25" max="25" value="0">
     </div>
 
-    <script>
-        document.addEventListener('contextmenu', e => e.preventDefault());
-        document.addEventListener('selectstart', e => e.preventDefault());
+    <div id="modeSwitchBox" class="modeSwitch">
+      <button id="buttonModeBtn" class="modeBtn active" type="button">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <circle cx="7" cy="7" r="3"></circle>
+          <circle cx="17" cy="7" r="3"></circle>
+          <circle cx="7" cy="17" r="3"></circle>
+          <circle cx="17" cy="17" r="3"></circle>
+        </svg>
+        <span>Buttons</span>
+      </button>
+      <button id="joyModeBtn" class="modeBtn" type="button">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <circle cx="12" cy="9" r="5"></circle>
+          <rect x="6" y="15" width="12" height="5" rx="2"></rect>
+        </svg>
+        <span>Joystick</span>
+      </button>
+    </div>
 
-        const mqttTopic = 'esp32_6wd_aman_v7/control';
-        const statusDock = document.getElementById('statusDock'), netText = document.getElementById('netText'), controlStage = document.getElementById('controlStage'), modeSwitchBox = document.getElementById('modeSwitchBox'), buttonModeBtn = document.getElementById('buttonModeBtn'), joyModeBtn = document.getElementById('joyModeBtn'), joyBase = document.getElementById('joyBase'), knob = document.getElementById('knob'), speedSlider = document.getElementById('speedSlider'), trimSlider = document.getElementById('trimSlider'), hornButton = document.getElementById('hornButton'), lightButton = document.getElementById('lightButton');
-        let mode = 'buttons', joyActive = false, lastJoy = 0, maxMove = 62, latchedCmd = '', momentaryCmd = '', heartbeatTimer = null, joyX = 0, joyY = 0, hornActive = false, lightOn = false, pulseHornOn = false, blinkLightOn = false;
-        const mqttClient = mqtt.connect('wss://broker.hivemq.com:8884/mqtt', { clientId: 'aman_v7_cloud_ui_' + Math.random().toString(16).slice(2, 10), clean: true, connectTimeout: 6000, reconnectPeriod: 2000 });
-        mqttClient.on('connect', () => { setStatus('online', 'Internet Connected • MQTT Broker Connected'); publish('S'); publish('SPD,' + speedSlider.value); publish('TRIM,' + trimSlider.value); publish(lightOn ? 'LIGHT1' : 'LIGHT0'); startHeartbeat(); });
-        mqttClient.on('reconnect', () => setStatus('connecting', 'Connecting cloud link...'));
-        mqttClient.on('offline', () => setStatus('fail', 'Offline • link lost'));
-        mqttClient.on('error', () => setStatus('fail', 'Connection failed'));
-        function setStatus(type, text) { statusDock.classList.remove('online', 'fail'); if (type === 'online') statusDock.classList.add('online'); if (type === 'fail') statusDock.classList.add('fail'); if (type === 'online') { netText.innerHTML = 'Internet Connected • <span class="mqttOk">MQTT Broker Connected</span>'; } else { netText.textContent = text; } }
-        function publish(msg) { if (mqttClient.connected) { mqttClient.publish(mqttTopic, msg, { qos: 0, retain: false }); console.log('MQTT:', msg); } }
-        function activeCommand() { if (joyActive) return 'J,' + Math.round(joyX) + ',' + Math.round(joyY); if (momentaryCmd) return momentaryCmd; if (latchedCmd) return latchedCmd; return '' }
-        function startHeartbeat() { if (heartbeatTimer) clearInterval(heartbeatTimer); heartbeatTimer = setInterval(() => { if (hornActive && !pulseHornOn) publish('H1'); const cmd = activeCommand(); if (cmd) publish(cmd); }, 300) }
-        function clearLatch() { latchedCmd = ''; document.querySelectorAll('.latchBtn').forEach(b => b.classList.remove('latched')) }
-        function stopAll() { momentaryCmd = ''; clearLatch(); releaseJoy(false); hornActive = false; pulseHornOn = false; blinkLightOn = false; lightOn = false; hornButton.classList.remove('active'); lightButton.classList.remove('lightOn'); updatePulseButtons(); publish('H0'); publish('HPULSE0'); publish('LBLINK0'); publish('LIGHT0'); publish('S') }
-        function setMode(newMode) { if (mode === newMode) return; stopAll(); mode = newMode; controlStage.classList.toggle('joystickMode', mode === 'joystick'); modeSwitchBox.classList.toggle('joySelected', mode === 'joystick'); buttonModeBtn.classList.toggle('active', mode === 'buttons'); joyModeBtn.classList.toggle('active', mode === 'joystick'); }
-        function toggleMode() { setMode(mode === 'buttons' ? 'joystick' : 'buttons') }
-        function bindModeSwitch() {
-            let startX = 0, dragging = false;
-            function modeFromPoint(x) { const rect = modeSwitchBox.getBoundingClientRect(); return x < rect.left + rect.width / 2 ? 'buttons' : 'joystick'; }
-            modeSwitchBox.addEventListener('pointerdown', e => { e.preventDefault(); startX = e.clientX; dragging = true; modeSwitchBox.setPointerCapture(e.pointerId); });
-            modeSwitchBox.addEventListener('pointermove', e => { if (!dragging) return; const dx = e.clientX - startX; if (mode === 'buttons' && dx > 18) setMode('joystick'); if (mode === 'joystick' && dx < -18) setMode('buttons'); });
-            function finish(e) { if (!dragging) return; dragging = false; const dx = e.clientX - startX; if (Math.abs(dx) < 10) setMode(modeFromPoint(e.clientX)); }
-            modeSwitchBox.addEventListener('pointerup', finish);
-            modeSwitchBox.addEventListener('pointercancel', () => { dragging = false });
-            modeSwitchBox.addEventListener('lostpointercapture', () => { dragging = false });
-            buttonModeBtn.addEventListener('click', e => { e.preventDefault(); setMode('buttons'); });
-            joyModeBtn.addEventListener('click', e => { e.preventDefault(); setMode('joystick'); });
-        }
-        function bindButtons() {
-            document.querySelectorAll('.btn').forEach(btn => {
-                const cmd = btn.dataset.cmd;
-                btn.addEventListener('pointerdown', e => {
-                    e.preventDefault();
-                    btn.setPointerCapture(e.pointerId);
-                    if (cmd === 'S') { stopAll(); btn.classList.add('active'); return; }
-                    if (cmd === 'F' || cmd === 'B') {
-                        momentaryCmd = '';
-                        if (latchedCmd === cmd) { clearLatch(); publish('S'); }
-                        else { clearLatch(); latchedCmd = cmd; btn.classList.add('latched'); publish(cmd); }
-                        return;
-                    }
-                    momentaryCmd = cmd;
-                    btn.classList.add('active');
-                    publish(cmd);
-                });
-                const up = () => {
-                    btn.classList.remove('active');
-                    if (cmd !== 'F' && cmd !== 'B' && cmd !== 'S') { momentaryCmd = ''; publish(latchedCmd || 'S'); }
-                    if (cmd === 'S') btn.classList.remove('active');
-                };
-                btn.addEventListener('pointerup', up);
-                btn.addEventListener('pointercancel', up);
-                btn.addEventListener('lostpointercapture', up);
-            });
-        }
-        function updateMaxMove() { maxMove = Math.min(joyBase.clientWidth, joyBase.clientHeight) * 0.28 }
-        function sendJoy(x, y, force = false) { joyX = x; joyY = y; const now = Date.now(); if (!force && now - lastJoy < 45) return; lastJoy = now; publish('J,' + Math.round(x) + ',' + Math.round(y)) }
-        function moveKnob(clientX, clientY) { updateMaxMove(); clearLatch(); momentaryCmd = ''; const rect = joyBase.getBoundingClientRect(), cx = rect.left + rect.width / 2, cy = rect.top + rect.height / 2; let dx = clientX - cx, dy = clientY - cy; const dist = Math.sqrt(dx * dx + dy * dy); if (dist > maxMove) { dx = dx / dist * maxMove; dy = dy / dist * maxMove } knob.style.transform = 'translate(' + dx + 'px,' + dy + 'px)'; knob.classList.add('active'); sendJoy((dx / maxMove) * 100, (-dy / maxMove) * 100) }
-        joyBase.addEventListener('pointerdown', e => { e.preventDefault(); joyActive = true; joyBase.setPointerCapture(e.pointerId); moveKnob(e.clientX, e.clientY) });
-        joyBase.addEventListener('pointermove', e => { if (joyActive) moveKnob(e.clientX, e.clientY) });
-        function releaseJoy(send = true) { joyActive = false; joyX = 0; joyY = 0; knob.style.transform = 'translate(0,0)'; knob.classList.remove('active'); if (send) publish('J,0,0') }
-        joyBase.addEventListener('pointerup', () => releaseJoy(true));
-        joyBase.addEventListener('pointercancel', () => releaseJoy(true));
-        joyBase.addEventListener('lostpointercapture', () => releaseJoy(true));
-        function getSpeedColor(percent) { return 'hsl(' + (215 - percent * .35) + ',16%,' + (50 - percent * .10) + '%)' }
-        function setSpeed(v) { const p = Math.round((v / 255) * 100), color = getSpeedColor(p); document.getElementById('speedVal').textContent = p + '%'; speedSlider.style.background = 'linear-gradient(90deg,' + color + ' 0%,' + color + ' ' + p + '%,#d8e0e4 ' + p + '%,#d8e0e4 100%)'; publish('SPD,' + v) }
-        function setTrim(v) { const val = Number(v), p = ((val + 25) / 50) * 100; trimSlider.style.background = val >= 0 ? 'linear-gradient(90deg,#d5dce0 0%,#d5dce0 50%,#4f5868 50%,#4f5868 ' + p + '%,#d5dce0 ' + p + '%,#d5dce0 100%)' : 'linear-gradient(90deg,#d5dce0 0%,#d5dce0 ' + p + '%,#4f5868 ' + p + '%,#4f5868 50%,#d5dce0 50%,#d5dce0 100%)'; publish('TRIM,' + val) }
-        speedSlider.addEventListener('input', e => setSpeed(e.target.value));
-        trimSlider.addEventListener('input', e => setTrim(e.target.value));
-        window.addEventListener('resize', updateMaxMove);
-        window.addEventListener('beforeunload', () => { publish('S'); publish('H0'); publish('HPULSE0'); publish('LBLINK0'); publish('LIGHT0'); });
-        function startHornPress(e) { e.preventDefault(); hornButton.setPointerCapture(e.pointerId); if (pulseHornOn) { pulseHornOn = false; publish('HPULSE0'); updatePulseButtons(); } hornActive = true; hornButton.classList.add('active'); publish('H1'); }
-        function endHornPress() { hornActive = false; hornButton.classList.remove('active'); if (!pulseHornOn) publish('H0'); }
-        hornButton.addEventListener('pointerdown', startHornPress);
-        hornButton.addEventListener('pointerup', endHornPress);
-        hornButton.addEventListener('pointercancel', endHornPress);
-        hornButton.addEventListener('lostpointercapture', endHornPress);
-        function updatePulseButtons() {
-            document.querySelectorAll('.pulseHornBtn').forEach(btn => btn.classList.toggle('blinkRun', pulseHornOn));
-            document.querySelectorAll('.blinkLightBtn').forEach(btn => btn.classList.toggle('blinkRun', blinkLightOn));
-        }
-        function togglePulseHorn(e) { e.preventDefault(); pulseHornOn = !pulseHornOn; if (pulseHornOn) { hornActive = false; hornButton.classList.remove('active'); publish('H0'); publish('HPULSE1'); } else { publish('HPULSE0'); } updatePulseButtons(); }
-        function toggleBlinkLight(e) { e.preventDefault(); blinkLightOn = !blinkLightOn; if (blinkLightOn) { lightOn = false; lightButton.classList.remove('lightOn'); publish('LIGHT0'); publish('LBLINK1'); } else { publish('LBLINK0'); } updatePulseButtons(); }
-        document.querySelectorAll('.pulseHornBtn').forEach(btn => btn.addEventListener('click', togglePulseHorn));
-        document.querySelectorAll('.blinkLightBtn').forEach(btn => btn.addEventListener('click', toggleBlinkLight));
-        function toggleLight() { if (blinkLightOn) { blinkLightOn = false; publish('LBLINK0'); updatePulseButtons(); } lightOn = !lightOn; lightButton.classList.toggle('lightOn', lightOn); publish(lightOn ? 'LIGHT1' : 'LIGHT0'); }
-        lightButton.addEventListener('click', toggleLight);
-        bindModeSwitch();
-        bindButtons();
-        setSpeed(speedSlider.value);
-        setTrim(trimSlider.value);
-        updateMaxMove();
-        startHeartbeat();
-    </script>
+    <div class="statusDock" id="statusDock"><span class="netDot"></span><span id="netText">Connecting cloud
+        link...</span></div>
+
+    <div class="topRow">
+      <div class="cornerGroup left">
+        <button class="roundBtn" id="hornButton" aria-label="Horn" type="button">
+          <div class="ledGlow"></div>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round" aria-hidden="true">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="currentColor" stroke="none" opacity="0.9">
+            </polygon>
+            <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+          </svg>
+          <span>Horn</span>
+        </button>
+        <button class="smallBtn pulseHornBtn" id="hornPulseBtn" aria-label="Pulse Horn" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+            <path d="M2 12h2M6 8v8M10 5v14M14 8v8M18 6v12M22 12h-2" />
+          </svg>
+          Pulse
+        </button>
+      </div>
+      <div class="cornerGroup right">
+        <button class="roundBtn" id="lightButton" aria-label="Headlight" type="button">
+          <div class="ledGlow"></div>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="5" fill="currentColor" opacity="0.9" stroke="none"></circle>
+            <line x1="12" y1="2" x2="12" y2="5"></line>
+            <line x1="12" y1="19" x2="12" y2="22"></line>
+            <line x1="4.22" y1="4.22" x2="6.34" y2="6.34"></line>
+            <line x1="17.66" y1="17.66" x2="19.78" y2="19.78"></line>
+            <line x1="2" y1="12" x2="5" y2="12"></line>
+            <line x1="19" y1="12" x2="22" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="6.34" y2="17.66"></line>
+            <line x1="17.66" y1="6.34" x2="19.78" y2="4.22"></line>
+          </svg>
+          <span>Light</span>
+        </button>
+        <button class="smallBtn blinkLightBtn" id="lightPulseBtn" aria-label="Pulse Light" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+            <path d="M9 2L7 8H3l3.5 3-1.5 5L9 13l4 3-1.5-5L15 8h-4z" fill="currentColor" stroke="none" opacity="0.88" />
+            <path d="M17 7l1-3M19 10l3-1M17 13l2 2" />
+          </svg>
+          Pulse
+        </button>
+      </div>
+    </div>
+
+    <div class="modeStage buttonMode" id="controlStage">
+      <div class="track">
+        <div class="panel buttonPanel">
+          <div class="controls" id="buttonControls">
+            <button class="btn corner fl" data-cmd="FL" type="button">FL</button>
+            <button class="btn forward latchBtn" data-cmd="F" type="button"><span class="arrow up"></span></button>
+            <button class="btn corner fr" data-cmd="FR" type="button">FR</button>
+            <button class="btn left" data-cmd="L" type="button"><span class="arrow leftA"></span></button>
+            <button class="btn stop" data-cmd="S" type="button">STOP</button>
+            <button class="btn right" data-cmd="R" type="button"><span class="arrow rightA"></span></button>
+            <button class="btn corner bl" data-cmd="BL" type="button">BL</button>
+            <button class="btn back latchBtn" data-cmd="B" type="button"><span class="arrow down"></span></button>
+            <button class="btn corner br" data-cmd="BR" type="button">BR</button>
+          </div>
+        </div>
+        <div class="panel joyPanel">
+          <div class="joyWrap">
+            <div id="joyBase" class="joyBase">
+              <div id="knob" class="knob"></div>
+            </div>
+            <div class="joyText">
+              <svg viewBox="0 0 210 58">
+                <path id="uTextPath" d="M 20 56 Q 105 -16 190 56" fill="none" />
+
+                <text>
+                  <textPath href="#uTextPath" startOffset="50%" text-anchor="middle">360° SMOOTH DRIVE
+                  </textPath>
+                </text>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="speedBox"><label>Speed</label>
+      <div class="speedRow"><input id="speedSlider" type="range" min="0" max="255" value="140"><span
+          id="speedVal">55%</span></div>
+    </div>
+    <div class="footerText">© 2025 ESP32-6WD V7 | Designed by Aman Sharma</div>
+  </div>
+
+  <script>
+    document.addEventListener('contextmenu', e => e.preventDefault());
+    document.addEventListener('selectstart', e => e.preventDefault());
+
+    const mqttTopic = 'esp32_6wd_aman_v7/control';
+    const statusDock = document.getElementById('statusDock'), netText = document.getElementById('netText'), controlStage = document.getElementById('controlStage'), modeSwitchBox = document.getElementById('modeSwitchBox'), buttonModeBtn = document.getElementById('buttonModeBtn'), joyModeBtn = document.getElementById('joyModeBtn'), joyBase = document.getElementById('joyBase'), knob = document.getElementById('knob'), speedSlider = document.getElementById('speedSlider'), trimSlider = document.getElementById('trimSlider'), hornButton = document.getElementById('hornButton'), lightButton = document.getElementById('lightButton');
+    let mode = 'buttons', joyActive = false, lastJoy = 0, maxMove = 62, latchedCmd = '', momentaryCmd = '', heartbeatTimer = null, joyX = 0, joyY = 0, hornActive = false, lightOn = false, pulseHornOn = false, blinkLightOn = false;
+    const mqttClient = mqtt.connect('wss://broker.hivemq.com:8884/mqtt', { clientId: 'aman_v7_cloud_ui_' + Math.random().toString(16).slice(2, 10), clean: true, connectTimeout: 6000, reconnectPeriod: 2000 });
+    mqttClient.on('connect', () => { setStatus('online', 'Internet Connected • MQTT Broker Connected'); publish('S'); publish('SPD,' + speedSlider.value); publish('TRIM,' + trimSlider.value); publish(lightOn ? 'LIGHT1' : 'LIGHT0'); startHeartbeat(); });
+    mqttClient.on('reconnect', () => setStatus('connecting', 'Connecting cloud link...'));
+    mqttClient.on('offline', () => setStatus('fail', 'Offline • link lost'));
+    mqttClient.on('error', () => setStatus('fail', 'Connection failed'));
+    function setStatus(type, text) { statusDock.classList.remove('online', 'fail'); if (type === 'online') statusDock.classList.add('online'); if (type === 'fail') statusDock.classList.add('fail'); if (type === 'online') { netText.innerHTML = 'Internet Connected • <span class="mqttOk">MQTT Broker Connected</span>'; } else { netText.textContent = text; } }
+    function publish(msg) { if (mqttClient.connected) { mqttClient.publish(mqttTopic, msg, { qos: 0, retain: false }); console.log('MQTT:', msg); } }
+    function activeCommand() { if (joyActive) return 'J,' + Math.round(joyX) + ',' + Math.round(joyY); if (momentaryCmd) return momentaryCmd; if (latchedCmd) return latchedCmd; return '' }
+    function startHeartbeat() { if (heartbeatTimer) clearInterval(heartbeatTimer); heartbeatTimer = setInterval(() => { if (hornActive && !pulseHornOn) publish('H1'); const cmd = activeCommand(); if (cmd) publish(cmd); }, 300) }
+    function clearLatch() { latchedCmd = ''; document.querySelectorAll('.latchBtn').forEach(b => b.classList.remove('latched')) }
+    function stopAll() { momentaryCmd = ''; clearLatch(); releaseJoy(false); hornActive = false; pulseHornOn = false; blinkLightOn = false; lightOn = false; hornButton.classList.remove('active'); lightButton.classList.remove('lightOn'); updatePulseButtons(); publish('H0'); publish('HPULSE0'); publish('LBLINK0'); publish('LIGHT0'); publish('S') }
+    function setMode(newMode) { if (mode === newMode) return; stopAll(); mode = newMode; controlStage.classList.toggle('joystickMode', mode === 'joystick'); modeSwitchBox.classList.toggle('joySelected', mode === 'joystick'); buttonModeBtn.classList.toggle('active', mode === 'buttons'); joyModeBtn.classList.toggle('active', mode === 'joystick'); }
+    function toggleMode() { setMode(mode === 'buttons' ? 'joystick' : 'buttons') }
+    function bindModeSwitch() {
+      let startX = 0, dragging = false;
+      function modeFromPoint(x) { const rect = modeSwitchBox.getBoundingClientRect(); return x < rect.left + rect.width / 2 ? 'buttons' : 'joystick'; }
+      modeSwitchBox.addEventListener('pointerdown', e => { e.preventDefault(); startX = e.clientX; dragging = true; modeSwitchBox.setPointerCapture(e.pointerId); });
+      modeSwitchBox.addEventListener('pointermove', e => { if (!dragging) return; const dx = e.clientX - startX; if (mode === 'buttons' && dx > 18) setMode('joystick'); if (mode === 'joystick' && dx < -18) setMode('buttons'); });
+      function finish(e) { if (!dragging) return; dragging = false; const dx = e.clientX - startX; if (Math.abs(dx) < 10) setMode(modeFromPoint(e.clientX)); }
+      modeSwitchBox.addEventListener('pointerup', finish);
+      modeSwitchBox.addEventListener('pointercancel', () => { dragging = false });
+      modeSwitchBox.addEventListener('lostpointercapture', () => { dragging = false });
+      buttonModeBtn.addEventListener('click', e => { e.preventDefault(); setMode('buttons'); });
+      joyModeBtn.addEventListener('click', e => { e.preventDefault(); setMode('joystick'); });
+    }
+    function bindButtons() {
+      document.querySelectorAll('.btn').forEach(btn => {
+        const cmd = btn.dataset.cmd;
+        btn.addEventListener('pointerdown', e => {
+          e.preventDefault();
+          btn.setPointerCapture(e.pointerId);
+          if (cmd === 'S') { stopAll(); btn.classList.add('active'); return; }
+          if (cmd === 'F' || cmd === 'B') {
+            momentaryCmd = '';
+            if (latchedCmd === cmd) { clearLatch(); publish('S'); }
+            else { clearLatch(); latchedCmd = cmd; btn.classList.add('latched'); publish(cmd); }
+            return;
+          }
+          momentaryCmd = cmd;
+          btn.classList.add('active');
+          publish(cmd);
+        });
+        const up = () => {
+          btn.classList.remove('active');
+          if (cmd !== 'F' && cmd !== 'B' && cmd !== 'S') { momentaryCmd = ''; publish(latchedCmd || 'S'); }
+          if (cmd === 'S') btn.classList.remove('active');
+        };
+        btn.addEventListener('pointerup', up);
+        btn.addEventListener('pointercancel', up);
+        btn.addEventListener('lostpointercapture', up);
+      });
+    }
+    function updateMaxMove() { maxMove = Math.min(joyBase.clientWidth, joyBase.clientHeight) * 0.28 }
+    function sendJoy(x, y, force = false) { joyX = x; joyY = y; const now = Date.now(); if (!force && now - lastJoy < 45) return; lastJoy = now; publish('J,' + Math.round(x) + ',' + Math.round(y)) }
+    function moveKnob(clientX, clientY) { updateMaxMove(); clearLatch(); momentaryCmd = ''; const rect = joyBase.getBoundingClientRect(), cx = rect.left + rect.width / 2, cy = rect.top + rect.height / 2; let dx = clientX - cx, dy = clientY - cy; const dist = Math.sqrt(dx * dx + dy * dy); if (dist > maxMove) { dx = dx / dist * maxMove; dy = dy / dist * maxMove } knob.style.transform = 'translate(' + dx + 'px,' + dy + 'px)'; knob.classList.add('active'); sendJoy((dx / maxMove) * 100, (-dy / maxMove) * 100) }
+    joyBase.addEventListener('pointerdown', e => { e.preventDefault(); joyActive = true; joyBase.setPointerCapture(e.pointerId); moveKnob(e.clientX, e.clientY) });
+    joyBase.addEventListener('pointermove', e => { if (joyActive) moveKnob(e.clientX, e.clientY) });
+    function releaseJoy(send = true) { joyActive = false; joyX = 0; joyY = 0; knob.style.transform = 'translate(0,0)'; knob.classList.remove('active'); if (send) publish('J,0,0') }
+    joyBase.addEventListener('pointerup', () => releaseJoy(true));
+    joyBase.addEventListener('pointercancel', () => releaseJoy(true));
+    joyBase.addEventListener('lostpointercapture', () => releaseJoy(true));
+    function getSpeedColor(percent) { return 'hsl(' + (215 - percent * .35) + ',16%,' + (50 - percent * .10) + '%)' }
+    function setSpeed(v) { const p = Math.round((v / 255) * 100), color = getSpeedColor(p); document.getElementById('speedVal').textContent = p + '%'; speedSlider.style.background = 'linear-gradient(90deg,' + color + ' 0%,' + color + ' ' + p + '%,#d8e0e4 ' + p + '%,#d8e0e4 100%)'; publish('SPD,' + v) }
+    function setTrim(v) { const val = Number(v), p = ((val + 25) / 50) * 100; trimSlider.style.background = val >= 0 ? 'linear-gradient(90deg,#d5dce0 0%,#d5dce0 50%,#4f5868 50%,#4f5868 ' + p + '%,#d5dce0 ' + p + '%,#d5dce0 100%)' : 'linear-gradient(90deg,#d5dce0 0%,#d5dce0 ' + p + '%,#4f5868 ' + p + '%,#4f5868 50%,#d5dce0 50%,#d5dce0 100%)'; publish('TRIM,' + val) }
+    speedSlider.addEventListener('input', e => setSpeed(e.target.value));
+    trimSlider.addEventListener('input', e => setTrim(e.target.value));
+    window.addEventListener('resize', updateMaxMove);
+    window.addEventListener('beforeunload', () => { publish('S'); publish('H0'); publish('HPULSE0'); publish('LBLINK0'); publish('LIGHT0'); });
+    function startHornPress(e) { e.preventDefault(); hornButton.setPointerCapture(e.pointerId); if (pulseHornOn) { pulseHornOn = false; publish('HPULSE0'); updatePulseButtons(); } hornActive = true; hornButton.classList.add('active'); publish('H1'); }
+    function endHornPress() { hornActive = false; hornButton.classList.remove('active'); if (!pulseHornOn) publish('H0'); }
+    hornButton.addEventListener('pointerdown', startHornPress);
+    hornButton.addEventListener('pointerup', endHornPress);
+    hornButton.addEventListener('pointercancel', endHornPress);
+    hornButton.addEventListener('lostpointercapture', endHornPress);
+    function updatePulseButtons() {
+      document.querySelectorAll('.pulseHornBtn').forEach(btn => btn.classList.toggle('blinkRun', pulseHornOn));
+      document.querySelectorAll('.blinkLightBtn').forEach(btn => btn.classList.toggle('blinkRun', blinkLightOn));
+    }
+    function togglePulseHorn(e) { e.preventDefault(); pulseHornOn = !pulseHornOn; if (pulseHornOn) { hornActive = false; hornButton.classList.remove('active'); publish('H0'); publish('HPULSE1'); } else { publish('HPULSE0'); } updatePulseButtons(); }
+    function toggleBlinkLight(e) { e.preventDefault(); blinkLightOn = !blinkLightOn; if (blinkLightOn) { lightOn = false; lightButton.classList.remove('lightOn'); publish('LIGHT0'); publish('LBLINK1'); } else { publish('LBLINK0'); } updatePulseButtons(); }
+    document.querySelectorAll('.pulseHornBtn').forEach(btn => btn.addEventListener('click', togglePulseHorn));
+    document.querySelectorAll('.blinkLightBtn').forEach(btn => btn.addEventListener('click', toggleBlinkLight));
+    function toggleLight() { if (blinkLightOn) { blinkLightOn = false; publish('LBLINK0'); updatePulseButtons(); } lightOn = !lightOn; lightButton.classList.toggle('lightOn', lightOn); publish(lightOn ? 'LIGHT1' : 'LIGHT0'); }
+    lightButton.addEventListener('click', toggleLight);
+    bindModeSwitch();
+    bindButtons();
+    setSpeed(speedSlider.value);
+    setTrim(trimSlider.value);
+    updateMaxMove();
+    startHeartbeat();
+  </script>
 </body>
 
 </html>
