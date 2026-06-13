@@ -71,14 +71,7 @@
             color: #4f5868;
         }
 
-        .modeTitleText {
-            margin-top: 3px;
-            font-size: 12px;
-            font-weight: 900;
-            color: #697489;
-            letter-spacing: .55px;
-            text-shadow: 0 1px 0 #fff;
-        }
+        .modeTitleText { display: none; }
 
         .statusDock {
             margin-top: 8px;
@@ -782,7 +775,7 @@
             top: 54px;
             background: radial-gradient(circle at 30% 22%, #ffffff 0 13%, #bcecff 23%, #329cff 50%, #075fd4 78%, #02275e 100%);
             box-shadow: 15px 17px 24px rgba(48, 58, 64, .36), -7px -7px 14px rgba(255, 255, 255, .62), inset 8px 8px 14px rgba(255, 255, 255, .52), inset -10px -12px 18px rgba(0, 0, 0, .40), 0 0 24px rgba(46, 155, 255, .30);
-            z-index: 5;
+            z-index: 100;
             transition: box-shadow .12s;
         }
 
@@ -805,10 +798,10 @@
 
         .joyText {
             position: absolute;
-            top: 14px;
+            top: 20px;
             width: 210px;
             height: 58px;
-            z-index: 6;
+            z-index: 1;
             pointer-events: none;
         }
 
@@ -819,9 +812,10 @@
         }
 
         .joyText text {
+            font-family: Arial, Helvetica, sans-serif;
             font-size: 8px;
-            font-weight: 900;
-            letter-spacing: 1.3px;
+            font-weight: 800;
+            letter-spacing: 1.15px;
             fill: #4f5868;
             opacity: .78;
             text-shadow: 0 1px 0 #fff;
@@ -1218,6 +1212,240 @@
                 transform: translateX(-50%) scale(1.15);
             }
         }
+
+
+        /* FINAL RESPONSIVE FIXES: laptop + iPhone landscape */
+        @media (orientation:landscape) {
+            html, body {
+                height: 100%;
+                overflow: hidden;
+            }
+
+            .main {
+                height: 100dvh;
+                min-height: 100dvh;
+                overflow: hidden;
+                padding: 12px 18px 6px;
+                display: grid;
+                grid-template-columns: 1fr;
+                grid-template-rows: auto auto auto 1fr auto auto;
+                row-gap: 5px;
+                justify-items: center;
+                align-items: center;
+            }
+
+            h1 {
+                grid-column: 1;
+                grid-row: 1;
+                font-size: clamp(24px, 3.2vw, 42px);
+                line-height: .95;
+            }
+
+            h3 {
+                grid-column: 1;
+                grid-row: 2;
+                font-size: clamp(12px, 1.4vw, 17px);
+                margin: 2px 0 0;
+            }
+
+            .statusDock {
+                grid-column: 1;
+                grid-row: 3;
+                margin-top: 5px;
+                transform: none;
+                z-index: 30;
+            }
+
+            .trimBox {
+                position: absolute;
+                left: 50%;
+                top: clamp(84px, 14vh, 122px);
+                transform: translateX(-50%);
+                width: clamp(180px, 24vw, 260px);
+                z-index: 20;
+            }
+
+            .topRow {
+                position: absolute;
+                top: clamp(78px, 13vh, 125px);
+                left: 50%;
+                width: min(94vw, 1020px);
+                max-width: none;
+                padding: 0 22px;
+                transform: translateX(-50%) scale(.86);
+                transform-origin: top center;
+                z-index: 25;
+            }
+
+            .modeSwitch { display: none; }
+
+            .modeStage {
+                grid-column: 1;
+                grid-row: 4;
+                width: min(92vw, 790px);
+                margin-top: clamp(8px, 2vh, 24px);
+                transform: none;
+                overflow: visible;
+            }
+
+            .track {
+                width: 100%;
+                gap: clamp(44px, 7vw, 92px);
+                justify-content: center;
+                align-items: center;
+                transform: none !important;
+            }
+
+            .panel { width: auto; flex: 0 0 auto; }
+
+
+            .speedBox {
+                grid-column: 1;
+                grid-row: 5;
+                width: clamp(320px, 38vw, 520px);
+                min-height: clamp(62px, 8vh, 82px);
+                margin-top: 0;
+                padding: 7px 16px;
+                transform: none;
+            }
+
+            #speedSlider { width: clamp(220px, 30vw, 430px); }
+
+            .footerText {
+                grid-column: 1;
+                grid-row: 6;
+                padding: 3px 0 2px;
+                font-size: 11px;
+            }
+        }
+
+        @media (orientation:landscape) and (max-height:520px) {
+            .main {
+                padding: 5px 10px 3px;
+                grid-template-rows: auto auto auto 1fr auto auto;
+                row-gap: 1px;
+            }
+
+            h1 { font-size: clamp(18px, 5vh, 24px); }
+            h3 { font-size: clamp(9px, 3vh, 12px); margin-top: 0; }
+
+            .statusDock {
+                min-height: 24px;
+                padding: 3px 9px;
+                gap: 6px;
+                font-size: 9px;
+                margin-top: 1px;
+            }
+
+            .netDot { width: 15px; height: 15px; }
+
+            .trimBox {
+                top: 40px;
+                width: 165px;
+                height: 25px;
+                padding: 4px 10px;
+                transform: translateX(-50%) scale(.82);
+            }
+
+            #trimSlider { width: 145px; }
+            #trimSlider::-webkit-slider-thumb { width: 19px; height: 19px; }
+
+            .topRow {
+                top: 36px;
+                width: min(96vw, 760px);
+                padding: 0 30px;
+                transform: translateX(-50%) scale(.58);
+            }
+
+            .cornerGroup { gap: 7px; }
+
+            .modeStage {
+                width: min(96vw, 610px);
+                margin-top: -4px;
+                transform: scale(.68);
+                transform-origin: center;
+            }
+
+            .track { gap: 52px; }
+
+            .speedBox {
+                width: 310px;
+                min-height: 48px;
+                padding: 5px 12px;
+                margin-top: -36px;
+                transform: scale(.76);
+            }
+
+            .speedBox label {
+                font-size: 13px;
+                padding: 2px 14px;
+                margin-bottom: 3px;
+            }
+
+            input[type=range] { width: 200px; height: 6px; }
+            input[type=range]::-webkit-slider-thumb { width: 28px; height: 28px; }
+            #speedVal { font-size: 14px; }
+            .footerText { font-size: 9px; padding: 0; }
+        }
+
+        @media (min-width:900px) and (orientation:landscape) {
+            .topRow {
+                top: 112px;
+                width: min(92vw, 1120px);
+                transform: translateX(-50%) scale(.92);
+            }
+
+            .trimBox {
+                top: 128px;
+                width: 250px;
+                height: 38px;
+            }
+
+            .modeStage {
+                width: min(86vw, 910px);
+                margin-top: 24px;
+            }
+
+            .track { gap: 105px; }
+
+            .controls, .joyWrap {
+                width: 315px;
+                height: 315px;
+            }
+            .controls::before { width: 244px; height: 244px; left: 35px; top: 35px; }
+            .joyWrap::before { width: 246px; height: 246px; }
+            .forward { left: 119px; top: 16px; }
+            .back { left: 119px; top: 223px; }
+            .left { left: 18px; top: 120px; }
+            .right { right: 18px; top: 120px; }
+            .stop { left: 105px; top: 105px; }
+            .fl { left: 63px; top: 63px; }
+            .fr { right: 63px; top: 63px; }
+            .bl { left: 63px; bottom: 63px; }
+            .br { right: 63px; bottom: 63px; }
+            .joyBase { width: 230px; height: 230px; }
+            .joyBase::before { width: 162px; left: 34px; top: 112px; }
+            .joyBase::after { height: 162px; left: 112px; top: 34px; }
+            .knob { width: 108px; height: 108px; left: 61px; top: 61px; }
+
+            .speedBox {
+                width: 540px;
+                min-height: 82px;
+                margin-top: 2px;
+            }
+
+            #speedSlider { width: 430px; height: 10px; }
+            #speedSlider::-webkit-slider-thumb { width: 42px; height: 42px; }
+            #speedVal { font-size: 22px; width: 60px; }
+        }
+
+        @media (min-width:1200px) and (orientation:landscape) {
+            .modeStage { transform: none; margin-top: 20px; }
+            .topRow { transform: translateX(-50%) scale(.96); }
+            .track { gap: 115px; }
+            .speedBox { margin-top: 0; }
+        }
+
     </style>
 </head>
 
@@ -1325,7 +1553,8 @@
                         </div>
                         <div class="joyText">
                             <svg viewBox="0 0 210 58">
-                                <path id="uTextPath" d="M 18 46 Q 105 -12 202 46" fill="none" />
+                                <path id="uTextPath" d="M 20 58 Q 105 -12 190 58" fill="none" />
+                                
                                 <text>
                                     <textPath href="#uTextPath" startOffset="50%" text-anchor="middle">360° SMOOTH DRIVE
                                     </textPath>
